@@ -2,165 +2,8 @@
 // Executar: node --test front-end/tests/etapa01.test.cjs
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
-const fs = require('node:fs');
+const { pagina, read, vm, fs, root } = require('./support/ambiente.cjs');
 const path = require('node:path');
-const vm = require('node:vm');
-const root = path.resolve(__dirname, '..');
-const read = name => fs.readFileSync(path.join(root, name), 'utf8');
-
-class Elemento {
-  constructor(tag = 'div') {
-    this.tagName = tag;
-    this.children = [];
-    this.dataset = {};
-    this.className = '';
-    this.listeners = {};
-    this.attributes = {};
-    this.style = { setProperty() {} };
-    this.classList = {
-      contains: c => this.className.split(/\s+/).includes(c),
-      add: (...cs) => { this.className = [...new Set([...this.className.split(/\s+/).filter(Boolean), ...cs])].join(' '); },
-      remove: (...cs) => { this.className = this.className.split(/\s+/).filter(c => !cs.includes(c)).join(' '); },
-      toggle: (c, force) => {
-        const add = force ?? !this.classList.contains(c);
-        this.classList[add ? 'add' : 'remove'](c);
-        return add;
-      }
-    };
-  }
-  set textContent(value) { this.text = String(value); this.children = []; }
-  get textContent() { return (this.text || '') + this.children.map(n => n.textContent).join(''); }
-  set innerHTML(value) { this.html = value; this.text = ''; this.children = []; }
-  append(...nodes) { this.children.push(...nodes); nodes.forEach(n => { n.parent = this; }); }
-  appendChild(node) { this.append(node); return node; }
-  replaceChildren(...nodes) { this.children = []; this.text = ''; this.append(...nodes); }
-  get firstElementChild() { return this.children[0] || null; }
-  setAttribute(name, value) { this.attributes[name] = String(value); }
-  removeAttribute(name) { delete this.attributes[name]; }
-  focus() {}
-  contains(node) { return this === node || this.children.some(c => c.contains(node)); }
-  addEventListener(type, fn) { (this.listeners[type] ||= []).push(fn); }
-  removeEventListener(type, fn) { this.listeners[type] = (this.listeners[type] || []).filter(f => f !== fn); }
-  dispatchEvent(event) {
-    event.target ||= this;
-    event.preventDefault ||= () => {};
-    event.stopPropagation ||= () => {};
-    for (const fn of [...(this.listeners[event.type] || [])]) {
-      const result = fn(event);
-      if (result?.then) (this.pending ||= []).push(result);
-    }
-    return true;
-  }
-  click() { if (!this.disabled) this.dispatchEvent({ type: 'click' }); }
-  matches(selector) {
-    const not = selector.match(/:not\(([^)]+)\)/);
-    if (not && this.matches(not[1])) return false;
-    selector = selector.replace(/:not\([^)]+\)/g, '');
-    const id = selector.match(/#([\w-]+)/);
-    if (id && this.id !== id[1]) return false;
-    const tag = selector.match(/^[\w-]+/);
-    if (tag && this.tagName !== tag[0]) return false;
-    return [...selector.matchAll(/\.([\w-]+)/g)].every(m => this.classList.contains(m[1]));
-  }
-  querySelectorAll(selector) {
-    const all = this.children.flatMap(c => [c, ...c.querySelectorAll('*')]);
-    if (selector === '*') return all;
-    return all.filter(n => selector.split(',').some(part => {
-      const pieces = part.trim().split(/\s+/);
-      if (!n.matches(pieces.pop())) return false;
-      let ancestor = n.parent;
-      while (pieces.length) {
-        const expected = pieces.pop();
-        while (ancestor && !ancestor.matches(expected)) ancestor = ancestor.parent;
-        if (!ancestor) return false;
-        ancestor = ancestor.parent;
-      }
-      return true;
-    }));
-  }
-  querySelector(selector) { return this.querySelectorAll(selector)[0] || null; }
-}
-
-async function pagina({ page = 'cart', id = 'black-hat', saved = [], stock, sizes, remote = [], offline = false, beforeReady } = {}) {
-  const document = new Elemento('document');
-  document.readyState = 'loading';
-  document.head = new Elemento('head');
-  document.body = new Elemento('body');
-  document.append(document.head, document.body);
-  document.createElement = tag => new Elemento(tag);
-  document.getElementById = id => document.querySelector(`#${id}`);
-  const add = (id, cls = '', tag = 'div') => {
-    const node = new Elemento(tag);
-    node.id = id;
-    node.className = cls;
-    document.body.append(node);
-    return node;
-  };
-  if (page !== 'my-armoire') {
-    ['carrinho', 'overlayCarrinho', 'abrirCarrinho', 'fecharCarrinho', 'listaCarrinho', 'totalCarrinho'].forEach(id => add(id));
-    add('contador', 'contador-carrinho');
-    add('toastCarrinho').append(new Elemento('span'));
-  }
-  if (page === 'produto') {
-    ['tamanhosProduto', 'tamanhoSelecionado', 'quantidadeProduto', 'diminuirQuantidade', 'aumentarQuantidade'].forEach(id => add(id));
-    add('btnComprar', 'btn-comprar', 'button');
-  }
-  if (page === 'quick') {
-    ['quickShopOverlay', 'fecharQuickShop', 'quickShopImagem', 'quickShopMarca', 'quickShopNome', 'quickShopPreco', 'quickShopTamanhoSelecionado', 'quickShopTamanhoSecao', 'quickShopErro', 'quickShopQuantidade', 'quickShopMenos', 'quickShopMais', 'quickShopAdicionar', 'quickShopVerProduto'].forEach(id => add(id));
-    add('quickShopTamanhos', 'quick-shop-tamanhos');
-  }
-  if (page === 'my-armoire') {
-    ['ma-cart-overlay', 'ma-cart-drawer', 'ma-cart-items', 'ma-cart-total', 'ma-cart-error', 'ma-cart-confirm', 'ma-cart-close'].forEach(id => add(id));
-  }
-  const storage = new Map([['carrinho', JSON.stringify(saved)]]);
-  const events = [];
-  const context = vm.createContext({
-    document, URLSearchParams, console: { log() {}, warn() {}, error() {}, table() {} },
-    localStorage: { getItem: key => storage.get(key) ?? null, setItem: (key, value) => storage.set(key, value) },
-    location: { search: `?id=${id}` },
-    CustomEvent: class { constructor(type, opts = {}) { this.type = type; this.detail = opts.detail; } },
-    setTimeout: () => 1, clearTimeout() {}, requestAnimationFrame: fn => fn(),
-    alert: message => { throw new Error('Alerta inesperado: ' + message); },
-    dispatchEvent: event => { events.push(event); return true; },
-    fetch: async () => {
-      if (offline) throw new Error('Rede indisponível (simulada)');
-      return { ok: true, json: async () => remote };
-    }
-  });
-  context.window = context;
-  const run = file => vm.runInContext(read(file), context, { filename: file });
-  run('js/produtos-data.js');
-  const products = vm.runInContext('produtos', context);
-  if (stock !== undefined) products[id].estoque = stock;
-  if (sizes !== undefined) products[id].tamanhos = sizes;
-  run('js/armoire-supabase.js');
-  run('js/carrinho.js');
-  if (page === 'produto') run('js/produto.js');
-  if (page === 'quick') {
-    const inline = [...read('produtos.html').matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)]
-      .map(m => m[1]).find(s => s.includes('function selecionarTamanho'));
-    vm.runInContext(inline, context, { filename: 'produtos.html:quick-shop' });
-  }
-  if (page === 'my-armoire') {
-    // Somente respostas de leitura simuladas; nenhuma conexão externa.
-    context.armoireSupabase = { from: () => ({
-      select() { return this; }, in() { return this; },
-      eq: async () => ({ data: remote, error: null })
-    }) };
-    context.supabase = { createClient: () => context.armoireSupabase };
-    run('js/my-armoire-cart.js');
-  }
-  if (beforeReady) beforeReady({ context, document, add });
-  document.readyState = 'interactive';
-  document.dispatchEvent({ type: 'DOMContentLoaded' });
-  await Promise.all(document.pending || []);
-  return {
-    context, document, products, storage, events, add,
-    get: id => document.getElementById(id),
-    cart: () => JSON.parse(storage.get('carrinho')),
-    money: value => value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
-  };
-}
 
 const itemLook = (id, tamanho = 'Único', quantidade = 1) => ({ produto_id: id, tamanho, quantidade, nome: id, preco: 89.99 });
 function look(h, itens, tentativa = 1) {
@@ -356,7 +199,7 @@ test('look: sucesso e falha são confirmados com tentativa; falha não adiciona 
 
 test('saneamento aguarda catálogo remoto e preserva produto remoto válido', async () => {
   const saved = [{ id: 'remoto', tamanho: 'G', quantidade: 2 }];
-  const h = await pagina({ saved, remote: [{ source_id: 'remoto', name: 'Peça remota', price: 10, stock: 3, sizes: ['G'] }] });
+  const h = await pagina({ saved, remote: [{ source_id: 'remoto', is_active: true, name: 'Peça remota', price: 10, stock: 3, sizes: ['G'] }] });
   assert.deepEqual(h.cart(), saved);
   assert.equal(h.get('totalCarrinho').textContent, h.money(20));
   assert.equal(h.context.adicionarCarrinho('remoto', 1, 'G'), true);
@@ -378,7 +221,7 @@ test('My Armoire carrega catálogo antes do carrinho e o painel transmite tamanh
   const html = read('my-armoire.html');
   assert.ok(html.indexOf('src="./js/produtos-data.js"') < html.indexOf('src="./js/armoire-supabase.js"'));
   assert.ok(html.indexOf('src="./js/armoire-supabase.js"') < html.indexOf('src="./js/carrinho.js"'));
-  const h = await pagina({ page: 'my-armoire', remote: [{ source_id: 'remoto', name: 'Peça remota', price: 10, stock: 2, sizes: ['M', 'G'], images: [] }] });
+  const h = await pagina({ page: 'my-armoire', remote: [{ source_id: 'remoto', is_active: true, name: 'Peça remota', price: 10, stock: 2, sizes: ['M', 'G'], images: [] }] });
   h.document.dispatchEvent(new h.context.CustomEvent('armoire:abrir-look', { detail: { ids: ['remoto'] } }));
   await new Promise(setImmediate);
   const wrapper = h.get('ma-cart-items').querySelector('.ma-size-wrapper');

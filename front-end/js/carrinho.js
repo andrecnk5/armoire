@@ -378,8 +378,7 @@ function buscarProdutoCarrinho(idProduto) {
 function obterProdutoCarrinho(item) {
   const produto = buscarProdutoCarrinho(item.id);
   if (!produto) {
-    if (catalogoConfirmado) return null;
-    // Uma falha de rede não comprova que uma peça salva deixou de existir.
+    // Peças removidas/inativas permanecem visíveis, sem permitir nova compra.
     return {
       id: String(item.id),
       nome: item.produto?.nome || "Produto a confirmar",
@@ -446,7 +445,8 @@ function sanearCarrinho() {
   const anterior = JSON.stringify(carrinho);
   carrinho = carrinho.filter(item => {
     const valido = item && normalizarIdCarrinho(item.id) &&
-      (buscarProdutoCarrinho(item.id) || !catalogoConfirmado) &&
+      (buscarProdutoCarrinho(item.id) || !catalogoConfirmado ||
+        Object.prototype.hasOwnProperty.call(window.armoireCatalogoLocal || {}, normalizarIdCarrinho(item.id)) || item.produto) &&
       Number.isSafeInteger(Number(item.quantidade)) && Number(item.quantidade) > 0;
     if (!valido) removidos++;
     return valido;
@@ -557,12 +557,13 @@ function adicionarCarrinho(
       tamanho: tamanhoNormalizado
     };
 
-    if (dadosProduto) {
+    const dados = dadosProduto || obterProdutoCarrinho({ id });
+    if (dados) {
       novoItem.produto = {
-        nome: dadosProduto.nome || "Produto",
-        preco: Number(dadosProduto.preco || 0),
-        imagem: dadosProduto.imagem || "",
-        categoria: dadosProduto.categoria || ""
+        nome: dados.nome || "Produto",
+        preco: Number(dados.preco),
+        imagem: dados.imagem || "",
+        categoria: dados.categoria || ""
       };
     }
 
@@ -778,7 +779,9 @@ function atualizarCarrinho() {
       avisos.push(`Estoque atual: ${estoque}. A quantidade salva foi preservada; reduza ou remova antes de continuar.`);
     }
     if (!produtoCatalogo) {
-      avisos.push("Não foi possível confirmar esta peça no catálogo. Ela foi preservada; tente novamente quando a conexão estiver disponível.");
+      avisos.push(catalogoConfirmado
+        ? "Esta peça não está disponível no catálogo atual. Ela foi preservada; remova-a para continuar."
+        : "Não foi possível confirmar esta peça no catálogo. Ela foi preservada; tente novamente quando a conexão estiver disponível.");
     } else if (!obterTamanhoCarrinho(produtoCatalogo, item.tamanho)) {
       avisos.push("Confira o tamanho desta peça e adicione novamente com um tamanho disponível.");
     }
@@ -949,6 +952,16 @@ document.addEventListener("keydown", evento => {
 });
 
 /* INICIALIZAÇÃO */
+
+function sincronizarCatalogoCarrinho() {
+  catalogoConfirmado = window.armoireCatalogoEstado?.fonte === "remoto";
+  if (!carrinhoPronto) return;
+  sanearCarrinho();
+  atualizarContador();
+  atualizarCarrinho();
+}
+
+document.addEventListener("armoire:catalogo-atualizado", sincronizarCatalogoCarrinho);
 
 async function iniciarCarrinho() {
   instalarEstilosCarrinho();

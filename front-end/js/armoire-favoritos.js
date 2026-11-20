@@ -121,6 +121,7 @@
 
         if (!id) return;
 
+        if (typeof produtos !== 'undefined' && window.armoireCatalogoEstado && !produtos[id]) return;
         registrarProduto(card, id);
 
         if (card.dataset.favoritoPreparado === '1') {
@@ -134,7 +135,11 @@
         // O botão não pode ficar dentro de um link.
         // Criamos um contêiner para o link e o coração.
 
-        if (card.matches('a')) {
+        const unidade = card.closest('.catalogo-card');
+        if (unidade) {
+            unidade.classList.add('ac-favorito-card');
+            unidade.appendChild(botao);
+        } else if (card.matches('a')) {
             const container = document.createElement('div');
 
             container.className = 'ac-favorito-card';
@@ -150,6 +155,7 @@
     }
 
     function prepararCards() {
+        catalogo.clear();
         document.querySelectorAll(
             '.grade-produtos .produto, ' +
             '.mais-vendidos .produto-mini'
@@ -456,6 +462,8 @@
     // INICIALIZAÇÃO
     // ==========================================
 
+    document.addEventListener('armoire:cards-atualizados', prepararCards);
+
     async function iniciar() {
         prepararCards();
 
@@ -469,14 +477,7 @@
         if (window.armoireCatalogoReady) {
             await window.armoireCatalogoReady;
 
-            document.querySelectorAll(
-                '.grade-produtos .produto, ' +
-                '.mais-vendidos .produto-mini'
-            ).forEach((card) => {
-                const id = obterId(card);
-
-                if (id) registrarProduto(card, id);
-            });
+            prepararCards();
         }
     }
 
