@@ -9,17 +9,14 @@
      SELETOR DE TAMANHOS PERSONALIZADO
   ========================================== */
 
-  const SUPABASE_URL =
-    "https://wcuutgmwlipshdpqxbim.supabase.co";
-
-  const SUPABASE_KEY =
-    "sb_publishable_sbX0g8RVoczkFCE4rRtrzQ_n7xvWHL1";
+  const executar = window.armoireServico.executar;
 
   const PARAMETRO_CONTA = "meu-guarda-roupa";
 
   const $ = id => document.getElementById(id);
 
   let sb = null;
+  let usuarioSessao = null;
   let carregamentoAtual = 0;
 
   let excluindo = false;
@@ -140,34 +137,18 @@
 
   function obterSupabase() {
     if (sb) return sb;
-
-    if (window.armoireSupabase) {
-      sb = window.armoireSupabase;
-      return sb;
-    }
-
-    if (!window.supabase?.createClient) {
-      throw new Error(
-        "A biblioteca do Supabase não está disponível."
-      );
-    }
-
-    sb = window.supabase.createClient(
-      SUPABASE_URL,
-      SUPABASE_KEY
-    );
-
-    window.armoireSupabase = sb;
-
+    sb = window.armoireServico.cliente();
+    if (!sb) throw new Error("A biblioteca do Supabase não está disponível.");
     return sb;
   }
 
   async function obterUsuario() {
     const { data, error } =
-      await obterSupabase().auth.getUser();
+      await executar(obterSupabase().auth.getUser());
 
     if (error) throw error;
 
+    usuarioSessao = data?.user?.id || null;
     return data?.user || null;
   }
 
@@ -1127,6 +1108,9 @@
       if (modalAberto !== id) return;
 
       overlay.classList.add("open");
+      window.armoireDialogos?.abrir(overlay.querySelector(".ac-looks-modal"), {
+        fechar: fecharModal, escape: false, origem: focoAnterior, externos: [overlay]
+      });
 
       overlay.querySelector(
         ".ac-looks-modal-close"
@@ -1159,6 +1143,7 @@
 
     if (overlay) {
       overlay.classList.remove("open");
+      window.armoireDialogos?.fechar(overlay.querySelector(".ac-looks-modal"));
 
       setTimeout(() => {
         if (modalAberto !== id) {
@@ -1428,12 +1413,12 @@
         );
       }
 
-      const { data, error } = await obterSupabase()
+      const { data, error } = await executar(obterSupabase()
         .from("looks_salvos")
         .delete()
         .eq("id", look.id)
         .eq("user_id", usuario.id)
-        .select("id");
+        .select("id"), true);
 
       if (error) throw error;
 
@@ -1866,7 +1851,7 @@
     const ids = [
       ...new Set(
         pecas.map(peca =>
-          String(peca.produto_id || "").trim()
+          window.armoireServico.idProduto(peca.produto_id)
         ).filter(Boolean)
       )
     ];
@@ -1907,13 +1892,13 @@
 
     try {
       const { data, error } =
-        await obterSupabase()
+        await executar(obterSupabase()
           .from("products")
           .select(
             "source_id,name,price,sizes,images,image_url,is_active"
           )
           .in("source_id", ids)
-          .eq("is_active", true);
+          .eq("is_active", true));
 
       if (
         requisicao !== requisicaoCompra
@@ -1923,6 +1908,7 @@
 
       if (error) throw error;
 
+      if (!Array.isArray(data)) throw new Error("Resposta de produtos inválida.");
       const mapa = new Map(
         (data || []).map(produto => [
           String(produto.source_id),
@@ -1936,7 +1922,9 @@
 
       if (
         encontrados.some(
-          produto => !produto
+          produto => !produto || produto.is_active !== true ||
+            !window.armoireServico.idProduto(produto.source_id) || produto.price == null ||
+            produto.price === '' || !Number.isFinite(Number(produto.price)) || Number(produto.price) < 0
         )
       ) {
         throw new Error(
@@ -2404,7 +2392,7 @@
       }
 
       const { data, error } =
-        await obterSupabase()
+        await executar(obterSupabase()
           .from("looks_salvos")
           .select(
             "id,nome,composicao,created_at"
@@ -2416,7 +2404,7 @@
           .order(
             "created_at",
             { ascending: false }
-          );
+          ));
 
       if (error) throw error;
 
@@ -2447,7 +2435,8 @@
         )
       );
 
-      const looks = data || [];
+      if (!Array.isArray(data)) throw new Error("Resposta de looks inválida.");
+      const looks = data;
 
       if (!looks.length) {
         conteudo.appendChild(
@@ -2584,33 +2573,10 @@
         );
       }
 
-      const iconeUsuario =
-        document.querySelector(
-          "header .fa-user"
-        );
-
-      if (
-        !drawer.classList.contains("open")
-      ) {
-        if (!iconeUsuario) {
-          throw new Error(
-            "Ícone de usuário não encontrado."
-          );
-        }
-
-        iconeUsuario.click();
-      }
-
-      await new Promise(resolve => {
-        requestAnimationFrame(resolve);
-      });
-
-      if (
-        !drawer.classList.contains("open")
-      ) {
-        throw new Error(
-          "Não foi possível abrir Minha Conta."
-        );
+      await window.armoireAuthReady;
+      await window.armoireConta?.abrir();
+      if (!drawer.classList.contains("open")) {
+        throw new Error("Não foi possível abrir Minha Conta.");
       }
 
       abrirGuardaRoupa();
@@ -2637,6 +2603,9 @@
      21. INICIALIZAÇÃO
   ========================================== */
 
+  function obterSupabaseSeguro() {
+    return window.armoireServico.cliente();
+  }
   function inicializar() {
     adicionarMyArmoire();
 
@@ -2646,6 +2615,21 @@
     criarModalCompra();
 
     instalarNavegacao();
+    document.querySelectorAll('[data-ac-section]').forEach(botao => {
+      if (botao.dataset.acSection !== 'guarda-roupa') botao.addEventListener('click', () => carregamentoAtual++);
+    });
+    obterSupabaseSeguro()?.auth.onAuthStateChange((_evento, sessao) => {
+      const id = sessao?.user?.id || null;
+      if (usuarioSessao === id) return;
+      usuarioSessao = id;
+      carregamentoAtual++;
+      requisicaoCompra++;
+      produtosCompra = [];
+      // Fechar somente após liberar os guardas locais, sem confirmar operações.
+      comprando = false; excluindo = false; carregandoCompra = false;
+      clearTimeout(timerCompra);
+      fecharModal();
+    });
 
     verificarRedirecionamento();
   }

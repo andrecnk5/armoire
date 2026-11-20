@@ -8,6 +8,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>Armoire Central</title>
+    <link rel="icon" type="image/png" href="images/logoinv.png">
 
     <link rel="stylesheet" href="css/style.css">
 
@@ -22,6 +23,8 @@
     >
 
 <link rel="stylesheet" href="css/armoire-auth-ui.css">
+<link rel="stylesheet" href="css/acessibilidade.css">
+<link rel="stylesheet" href="css/demonstracao.css">
 </head>
 
 
@@ -51,7 +54,7 @@
         <a href="index.html">
 
             <img
-                src="images/logo.png"
+                src="images/logo.PNG"
                 alt="Armoire Central"
             >
 
@@ -66,11 +69,11 @@
 
     <div class="icons-home">
 
-        <i class="fa-solid fa-magnifying-glass"></i>
+        <i class="fa-solid fa-magnifying-glass" data-busca-demonstrativa role="img" aria-label="Busca demonstrativa indisponível" title="Busca — demonstração indisponível"></i>
 
-        <i class="fa-regular fa-user"></i>
+        <button type="button" class="botao-conta" aria-haspopup="dialog" aria-label="Abrir minha conta"><i class="fa-regular fa-user" aria-hidden="true"></i></button>
 
-        <a href="produtos.html" class="icone-carrinho-home">
+        <a href="produtos.html" class="icone-carrinho-home" aria-label="Ver produtos e carrinho">
 
             <i class="fa-solid fa-bag-shopping"></i>
 
@@ -79,6 +82,9 @@
         <button
             class="botao-menu"
             id="abrirMenu"
+            type="button"
+            aria-expanded="false"
+            aria-controls="menuLateral"
             aria-label="Abrir menu"
         >
 
@@ -105,6 +111,7 @@
 <aside
     class="menu-lateral"
     id="menuLateral"
+    inert aria-hidden="true"
 >
 
     <div class="menu-topo">
@@ -133,11 +140,11 @@
             PRODUTOS
         </a>
 
-        <a href="#">
+        <a href="#" data-link-demonstrativo aria-disabled="true" tabindex="-1" title="Demonstração — conteúdo indisponível">
             QUEM SOMOS
         </a>
 
-        <a href="#">
+        <a href="#" data-link-demonstrativo aria-disabled="true" tabindex="-1" title="Demonstração — conteúdo indisponível">
             FALE CONOSCO
         </a>
 
@@ -257,7 +264,7 @@
 
     <div class="destaque-imagem">
 
-        <img
+        <img loading="lazy" decoding="async"
             src="images/bannerpd.png"
             alt="Coleção Armoire Central"
         >
@@ -288,7 +295,7 @@
         <a
             href="#"
             class="botao-colecao"
-        >
+            data-link-demonstrativo aria-disabled="true" tabindex="-1" title="Demonstração — conteúdo indisponível">
 
             <span>
                 CONHEÇA-NOS
@@ -326,11 +333,11 @@
 
 
         <a
-            href="produtos.html?categoria=camisetas&categoria=polos"
+            href="produtos.html?categoria=camisetas-polos"
             class="categoria-home"
         >
 
-            <img
+            <img loading="lazy" decoding="async"
                 src="images/categoria-polo.png"
                 alt="Camisetas e Polos"
             >
@@ -356,7 +363,7 @@
             class="categoria-home"
         >
 
-            <img
+            <img loading="lazy" decoding="async"
                 src="images/categoria-camisa.png"
                 alt="Camisas"
             >
@@ -378,11 +385,11 @@
 
 
         <a
-            href="produtos.html?categoria=calcas&categoria=bermudas"
+            href="produtos.html?categoria=calcas-bermudas"
             class="categoria-home"
         >
 
-            <img
+            <img loading="lazy" decoding="async"
                 src="images/categoria-calca.png"
                 alt="Calças e Bermudas"
             >
@@ -408,7 +415,7 @@
             class="categoria-home"
         >
 
-            <img
+            <img loading="lazy" decoding="async"
                 src="images/categoria-acessorios.png"
                 alt="Acessórios"
             >
@@ -531,15 +538,16 @@
         </p>
 
 
-        <form class="newsletter-form">
+        <form class="newsletter-form" aria-label="Newsletter demonstrativa">
 
-            <input
+            <label class="sr-only" for="newsletter-email-index-1">Seu e-mail para receber novidades</label>
+            <input disabled aria-describedby="newsletter-aviso-index" id="newsletter-email-index-1" name="email" autocomplete="email"
                 type="email"
                 placeholder="Seu melhor e-mail"
                 required
             >
 
-            <button type="submit">
+            <button type="submit" disabled aria-describedby="newsletter-aviso-index">
 
                 <span>
                     INSCREVER-SE
@@ -549,6 +557,7 @@
 
             </button>
 
+            <p class="aviso-demonstracao" id="newsletter-aviso-index">Demonstração: inscrições indisponíveis. Nenhum e-mail é enviado ou salvo.</p>
         </form>
 
     </div>
@@ -584,15 +593,15 @@
             ARMOIRE CENTRAL
         </h4>
 
-        <a href="#">
+        <a href="#" data-link-demonstrativo aria-disabled="true" tabindex="-1" title="Demonstração — conteúdo indisponível">
             Quem somos
         </a>
 
-        <a href="#">
+        <a href="#" data-link-demonstrativo aria-disabled="true" tabindex="-1" title="Demonstração — conteúdo indisponível">
             Nossa história
         </a>
 
-        <a href="#">
+        <a href="#" data-link-demonstrativo aria-disabled="true" tabindex="-1" title="Demonstração — conteúdo indisponível">
             Contato
         </a>
 
@@ -605,15 +614,15 @@
             ATENDIMENTO
         </h4>
 
-        <a href="#">
+        <a href="#" data-link-demonstrativo aria-disabled="true" tabindex="-1" title="Demonstração — conteúdo indisponível">
             Fale conosco
         </a>
 
-        <a href="#">
+        <a href="#" data-link-demonstrativo aria-disabled="true" tabindex="-1" title="Demonstração — conteúdo indisponível">
             Trocas e devoluções
         </a>
 
-        <a href="#">
+        <a href="#" data-link-demonstrativo aria-disabled="true" tabindex="-1" title="Demonstração — conteúdo indisponível">
             Política de privacidade
         </a>
 
@@ -626,11 +635,11 @@
             REDES SOCIAIS
         </h4>
 
-        <a href="#">
+        <a href="#" data-link-demonstrativo aria-disabled="true" tabindex="-1" title="Demonstração — conteúdo indisponível">
             Instagram
         </a>
 
-        <a href="#">
+        <a href="#" data-link-demonstrativo aria-disabled="true" tabindex="-1" title="Demonstração — conteúdo indisponível">
             TikTok
         </a>
 
@@ -644,6 +653,7 @@
     </div>
 
 
+<p class="aviso-demonstracao aviso-rodape">Demonstração: busca, páginas institucionais e redes sociais indisponíveis.</p>
 </footer>
 
 
@@ -651,6 +661,9 @@
 <!-- ==================================================
      JAVASCRIPT
 ================================================== -->
+
+<script src="js/acessibilidade.js"></script>
+<script src="js/armoire-client.js"></script>
 
 <script>
 
@@ -677,6 +690,11 @@ document.addEventListener("DOMContentLoaded", function(){
         menuOverlay.classList.add("ativo");
 
         document.body.classList.add("menu-aberto");
+        abrirMenu.setAttribute("aria-expanded", "true");
+        window.armoireDialogos?.abrir(menuLateral, {
+            nome: "Menu principal", fechar: fecharMenuLateral, inicial: fecharMenu,
+            origem: abrirMenu, externos: [menuOverlay]
+        });
 
     }
 
@@ -688,9 +706,13 @@ document.addEventListener("DOMContentLoaded", function(){
         menuOverlay.classList.remove("ativo");
 
         document.body.classList.remove("menu-aberto");
+        abrirMenu.setAttribute("aria-expanded", "false");
+        window.armoireDialogos?.fechar(menuLateral);
 
     }
 
+
+    menuLateral.querySelectorAll("a").forEach(link => link.addEventListener("click", fecharMenuLateral));
 
     abrirMenu.addEventListener(
         "click",
@@ -716,12 +738,15 @@ document.addEventListener("DOMContentLoaded", function(){
 </script>
 
 <script src="js/home.js"></script>
+<script src="js/produtos-data.js"></script>
+<script src="js/armoire-supabase.js"></script>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script src="js/armoire-auth-ui.js"></script>
 <script src="js/armoire-favoritos.js"></script>
 <script src="js/armoire-enderecos.js"></script>
 <script src="js/armoire-menu-extra.js"></script>
+<script src="js/demonstracao.js"></script>
 </body>
 
 </html>

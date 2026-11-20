@@ -9,6 +9,7 @@
           content="width=device-width, initial-scale=1.0">
 
     <title>Armoire Central - Produtos</title>
+    <link rel="icon" type="image/png" href="images/logoinv.png">
 
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/produtos.css">
@@ -22,6 +23,8 @@
         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
 <link rel="stylesheet" href="css/armoire-auth-ui.css">
+<link rel="stylesheet" href="css/acessibilidade.css">
+<link rel="stylesheet" href="css/demonstracao.css">
 </head>
 
 <body>
@@ -43,7 +46,7 @@
 
 <aside
     id="carrinho"
-    class="carrinho">
+    class="carrinho" inert aria-hidden="true">
 
     <div class="topo-carrinho">
 
@@ -87,13 +90,8 @@
         </div>
 
 
-        <button
-            class="btn-finalizar"
-            type="button">
-
-            FINALIZAR COMPRA
-
-        </button>
+        <button class="btn-finalizar" type="button" disabled aria-describedby="checkout-aviso">CHECKOUT DEMONSTRATIVO</button>
+        <p class="aviso-demonstracao" id="checkout-aviso">Demonstração: pagamento e criação de pedidos indisponíveis.</p>
 
     </div>
 
@@ -129,14 +127,14 @@
 
     <div class="icons">
 
-        <i class="fa-solid fa-magnifying-glass"></i>
+        <i class="fa-solid fa-magnifying-glass" data-busca-demonstrativa role="img" aria-label="Busca demonstrativa indisponível" title="Busca — demonstração indisponível"></i>
 
-        <i class="fa-regular fa-user"></i>
+        <button type="button" class="botao-conta" aria-haspopup="dialog" aria-label="Abrir minha conta"><i class="fa-regular fa-user" aria-hidden="true"></i></button>
 
 
-        <div
+        <button type="button"
             class="icone-carrinho"
-            id="abrirCarrinho">
+            id="abrirCarrinho" aria-label="Abrir carrinho" aria-controls="carrinho">
 
             <i class="fa-solid fa-bag-shopping"></i>
 
@@ -144,7 +142,7 @@
                 0
             </span>
 
-        </div>
+        </button>
 
     <button
          type="button"
@@ -175,8 +173,8 @@
     <nav class="menu-catalogo-links">
         <a href="index.html">INÍCIO</a>
         <a href="produtos.html">PRODUTOS</a>
-        <a href="#">QUEM SOMOS</a>
-        <a href="#">FALE CONOSCO</a>
+        <a href="#" data-link-demonstrativo aria-disabled="true" tabindex="-1" title="Demonstração — conteúdo indisponível">QUEM SOMOS</a>
+        <a href="#" data-link-demonstrativo aria-disabled="true" tabindex="-1" title="Demonstração — conteúdo indisponível">FALE CONOSCO</a>
     </nav>
 
     <div class="menu-catalogo-rodape">
@@ -263,6 +261,11 @@
 
             </label>
 
+
+            <label>
+                <input type="checkbox" class="filtro-categoria" value="camisas">
+                Camisas
+            </label>
 
             <label>
 
@@ -397,7 +400,7 @@
             </label>
 
         </div>
-  
+
 
 <!-- =============================================
      CORES
@@ -509,6 +512,8 @@
 
         <div class="cabecalho-produtos">
 
+            <p id="estadoCatalogo" role="status">Carregando catálogo...</p>
+
             <p id="contadorProdutos">
                 Produtos
             </p>
@@ -569,10 +574,9 @@
                  SUÉTER
             ========================================== -->
 
-            <a
-                href="produto.html?id=sueterp-frente"
-                class="produto"
-                data-produto-id="sueterp-frente">
+            <div class="catalogo-card" data-produto-id="sueterp-frente">
+                <article class="produto" data-produto-id="sueterp-frente">
+                    <a href="produto.html?id=sueterp-frente">
 
                 <img
                     src="images/sueterp-frente.png"
@@ -586,11 +590,12 @@
                     R$ 139,99
                 </p>
 
-                <button type="button">
-                    Comprar
-                </button>
 
-            </a>
+
+                    </a>
+                    <button type="button">Comprar</button>
+                </article>
+            </div>
 
 
 
@@ -598,10 +603,9 @@
                  POLARBLUM
             ========================================== -->
 
-            <a
-                href="produto.html?id=polarblum-frente"
-                class="produto"
-                data-produto-id="polarblum-frente">
+            <div class="catalogo-card" data-produto-id="polarblum-frente">
+                <article class="produto" data-produto-id="polarblum-frente">
+                    <a href="produto.html?id=polarblum-frente">
 
                 <img
                     src="images/polarblum-frente.png"
@@ -615,11 +619,12 @@
                     R$ 159,99
                 </p>
 
-                <button type="button">
-                    Comprar
-                </button>
 
-            </a>
+
+                    </a>
+                    <button type="button">Comprar</button>
+                </article>
+            </div>
 
 
 
@@ -627,10 +632,9 @@
                  FLEECE
             ========================================== -->
 
-            <a
-                href="produto.html?id=fleece-frente"
-                class="produto"
-                data-produto-id="fleece-frente">
+            <div class="catalogo-card" data-produto-id="fleece-frente">
+                <article class="produto" data-produto-id="fleece-frente">
+                    <a href="produto.html?id=fleece-frente">
 
                 <img
                     src="images/fleece-frente.png"
@@ -644,11 +648,12 @@
                     R$ 139,99
                 </p>
 
-                <button type="button">
-                    Comprar
-                </button>
 
-            </a>
+
+                    </a>
+                    <button type="button">Comprar</button>
+                </article>
+            </div>
 
 
 
@@ -656,10 +661,9 @@
                  FRANCE AC
             ========================================== -->
 
-            <a
-                href="produto.html?id=france-ac"
-                class="produto"
-                data-produto-id="france-ac">
+            <div class="catalogo-card" data-produto-id="france-ac">
+                <article class="produto" data-produto-id="france-ac">
+                    <a href="produto.html?id=france-ac">
 
                 <img
                     src="images/france-ac.png"
@@ -673,11 +677,12 @@
                     R$ 89,99
                 </p>
 
-                <button type="button">
-                    Comprar
-                </button>
 
-            </a>
+
+                    </a>
+                    <button type="button">Comprar</button>
+                </article>
+            </div>
 
 
 
@@ -685,10 +690,9 @@
                  BALTIC AC
             ========================================== -->
 
-            <a
-                href="produto.html?id=riskbaltic"
-                class="produto"
-                data-produto-id="riskbaltic">
+            <div class="catalogo-card" data-produto-id="riskbaltic">
+                <article class="produto" data-produto-id="riskbaltic">
+                    <a href="produto.html?id=riskbaltic">
 
                 <img
                     src="images/riskbaltic.png"
@@ -702,11 +706,12 @@
                     R$ 159,99
                 </p>
 
-                <button type="button">
-                    Comprar
-                </button>
 
-            </a>
+
+                    </a>
+                    <button type="button">Comprar</button>
+                </article>
+            </div>
 
 
 
@@ -714,10 +719,9 @@
                  FLEECE LUMIÉRE
             ========================================== -->
 
-            <a
-                href="produto.html?id=lumiere"
-                class="produto"
-                data-produto-id="lumiere">
+            <div class="catalogo-card" data-produto-id="lumiere">
+                <article class="produto" data-produto-id="lumiere">
+                    <a href="produto.html?id=lumiere">
 
                 <img
                     src="images/lumiere.png"
@@ -731,11 +735,12 @@
                     R$ 209,99
                 </p>
 
-                <button type="button">
-                    Comprar
-                </button>
 
-            </a>
+
+                    </a>
+                    <button type="button">Comprar</button>
+                </article>
+            </div>
 
 
 
@@ -743,10 +748,9 @@
                  CALÇA LUMIÉRE
             ========================================== -->
 
-            <a
-                href="produto.html?id=lumierecalca"
-                class="produto"
-                data-produto-id="lumierecalca">
+            <div class="catalogo-card" data-produto-id="lumierecalca">
+                <article class="produto" data-produto-id="lumierecalca">
+                    <a href="produto.html?id=lumierecalca">
 
                 <img
                     src="images/lumierecalca.png"
@@ -760,11 +764,12 @@
                     R$ 169,99
                 </p>
 
-                <button type="button">
-                    Comprar
-                </button>
 
-            </a>
+
+                    </a>
+                    <button type="button">Comprar</button>
+                </article>
+            </div>
 
 
 
@@ -772,10 +777,9 @@
                  BERMUDA LUMIÉRE
             ========================================== -->
 
-            <a
-                href="produto.html?id=lumiereberm"
-                class="produto"
-                data-produto-id="lumiereberm">
+            <div class="catalogo-card" data-produto-id="lumiereberm">
+                <article class="produto" data-produto-id="lumiereberm">
+                    <a href="produto.html?id=lumiereberm">
 
                 <img
                     src="images/lumiereberm.png"
@@ -789,11 +793,12 @@
                     R$ 139,99
                 </p>
 
-                <button type="button">
-                    Comprar
-                </button>
 
-            </a>
+
+                    </a>
+                    <button type="button">Comprar</button>
+                </article>
+            </div>
 
 
 
@@ -801,10 +806,9 @@
                  LEMONTEE
             ========================================== -->
 
-            <a
-                href="produto.html?id=lemontee"
-                class="produto"
-                data-produto-id="lemontee">
+            <div class="catalogo-card" data-produto-id="lemontee">
+                <article class="produto" data-produto-id="lemontee">
+                    <a href="produto.html?id=lemontee">
 
                 <img
                     src="images/lemontee.png"
@@ -818,13 +822,14 @@
                     R$ 119,99
                 </p>
 
-                <button type="button">
-                    Comprar
-                </button>
 
-            
+
+
+                    </a>
+                    <button type="button">Comprar</button>
+                </article>
+            </div>
         <!-- Fim do último card de produto -->
-        </a>
 
     </div> <!-- Fim da grade-produtos -->
 
@@ -936,16 +941,18 @@
     </div>
 
 
-    <form class="newsletter-form">
+    <form class="newsletter-form" aria-label="Newsletter demonstrativa">
 
-        <input
+        <label class="sr-only" for="newsletter-email-produtos-1">Seu e-mail para receber novidades</label>
+        <input disabled aria-describedby="newsletter-aviso-produtos" id="newsletter-email-produtos-1" name="email" autocomplete="email"
             type="email"
             placeholder="Digite seu melhor e-mail">
 
-        <button type="submit">
+        <button type="submit" disabled aria-describedby="newsletter-aviso-produtos">
             CADASTRAR
         </button>
 
+        <p class="aviso-demonstracao" id="newsletter-aviso-produtos">Demonstração: inscrições indisponíveis. Nenhum e-mail é enviado ou salvo.</p>
     </form>
 
 </section>
@@ -958,7 +965,7 @@
 
 <div
     id="toastCarrinho"
-    class="toast-carrinho">
+    class="toast-carrinho" role="status" aria-live="polite">
 
     <i class="fa-solid fa-circle-check"></i>
 
@@ -1053,6 +1060,7 @@
     </div>
 
 
+<p class="aviso-demonstracao aviso-rodape">Demonstração: busca, páginas institucionais e redes sociais indisponíveis.</p>
 </footer>
 
 
@@ -1063,7 +1071,7 @@
 
 <div
     class="quick-shop-overlay"
-    id="quickShopOverlay">
+    id="quickShopOverlay" inert>
 
 
     <div
@@ -1149,7 +1157,7 @@
 
                 <p
                     class="quick-shop-erro"
-                    id="quickShopErro">
+                    id="quickShopErro" role="status" aria-live="polite">
 
                     Faltou apenas selecionar o seu tamanho
 
@@ -1178,7 +1186,7 @@
 
                     <button
                         type="button"
-                        id="quickShopMenos">
+                        id="quickShopMenos" aria-label="Diminuir quantidade">
 
                         −
 
@@ -1195,7 +1203,7 @@
 
                     <button
                         type="button"
-                        id="quickShopMais">
+                        id="quickShopMais" aria-label="Aumentar quantidade">
 
                         +
 
@@ -1249,6 +1257,9 @@
      DADOS DOS PRODUTOS
 ===================================================== -->
 
+<script src="js/acessibilidade.js"></script>
+<script src="js/armoire-client.js"></script>
+
 <script src="js/produtos-data.js"></script>
 
 
@@ -1265,698 +1276,7 @@
      FILTROS
 ===================================================== -->
 
-<script>
-
-document.addEventListener("DOMContentLoaded", function () {
-
-
-    /* =================================================
-       ELEMENTOS
-    ================================================= */
-
-    const cards =
-        document.querySelectorAll(
-            ".grade-produtos .produto[data-produto-id]"
-        );
-
-
-    const filtrosCategoria =
-        document.querySelectorAll(
-            ".filtro-categoria"
-        );
-
-
-    const filtrosTamanho =
-        document.querySelectorAll(
-            ".filtro-tamanho"
-        );
-
-
-    const filtrosCor =
-        document.querySelectorAll(
-            ".filtro-cor"
-        );
-
-
-    const nenhumResultado =
-        document.getElementById(
-            "nenhumResultado"
-        );
-
-
-    const contadorProdutos =
-        document.getElementById(
-            "contadorProdutos"
-        );
-
-
-    const limparFiltros =
-        document.getElementById(
-            "limparFiltros"
-        );
-
-
-    const limparFiltrosResultado =
-        document.getElementById(
-            "limparFiltrosResultado"
-        );
-
-
-    const verColecaoCompleta =
-        document.getElementById(
-            "verColecaoCompleta"
-        );
-
-
-
-    /* =================================================
-       NORMALIZAR TEXTO
-    ================================================= */
-
-    function normalizarTexto(texto) {
-
-        return String(texto || "")
-            .normalize("NFD")
-            .replace(/[\u0300-\u036f]/g, "")
-            .toLowerCase()
-            .trim();
-
-    }
-
-
-
-    /* =================================================
-       CATEGORIA DA URL
-    ================================================= */
-
-    const parametros =
-        new URLSearchParams(
-            window.location.search
-        );
-
-
-    const categoriaURL =
-        parametros.get("categoria");
-
-
-
-    /* =================================================
-       MAPA DAS CATEGORIAS
-    ================================================= */
-
-    const mapaCategorias = {
-
-        "camisetas-polos": [
-            "camisetas",
-            "polos"
-        ],
-
-        "camisas": [
-            "camisas"
-        ],
-
-        "calcas-bermudas": [
-            "calcas",
-            "bermudas"
-        ],
-
-        "acessorios": [
-            "acessorios"
-        ]
-
-    };
-
-
-
-    /* =================================================
-       SELECIONAR CATEGORIA VINDO DA HOME
-    ================================================= */
-
-    if (
-        categoriaURL &&
-        mapaCategorias[categoriaURL]
-    ) {
-
-        const categoriasSelecionadas =
-            mapaCategorias[categoriaURL];
-
-
-        filtrosCategoria.forEach(
-            function (checkbox) {
-
-                if (
-                    categoriasSelecionadas.includes(
-                        checkbox.value
-                    )
-                ) {
-
-                    checkbox.checked = true;
-
-                }
-
-            }
-        );
-
-    }
-
-
-
-    /* =================================================
-       PRODUTO SEM DADOS
-    ================================================= */
-
-    function obterDadosProduto(id) {
-
-        if (
-            typeof produtos === "undefined"
-        ) {
-
-            return null;
-
-        }
-
-
-        return produtos[id] || null;
-
-    }
-
-
-
-    /* =================================================
-       VERIFICAR CATEGORIA
-    ================================================= */
-
-    function produtoPertenceCategoria(
-        produto,
-        categoriasSelecionadas
-    ) {
-
-        if (
-            categoriasSelecionadas.length === 0
-        ) {
-
-            return true;
-
-        }
-
-
-        if (!produto) {
-
-            return false;
-
-        }
-
-
-        /*
-         * A classificação principal será
-         * adicionada no produtos-data.js.
-         */
-
-        const categoriaProduto =
-            normalizarTexto(
-                produto.tipo ||
-                produto.grupo ||
-                produto.categoria
-            );
-
-
-        return categoriasSelecionadas.some(
-            function (categoria) {
-
-                const categoriaNormalizada =
-                    normalizarTexto(
-                        categoria
-                    );
-
-
-                return (
-                    categoriaProduto ===
-                    categoriaNormalizada
-                );
-
-            }
-        );
-
-    }
-
-
-
-    /* =================================================
-       VERIFICAR TAMANHO
-    ================================================= */
-
-    function produtoPossuiTamanho(
-        produto,
-        tamanhosSelecionados
-    ) {
-
-        if (
-            tamanhosSelecionados.length === 0
-        ) {
-
-            return true;
-
-        }
-
-
-        if (
-            !produto ||
-            !Array.isArray(produto.tamanhos)
-        ) {
-
-            return false;
-
-        }
-
-
-        return tamanhosSelecionados.some(
-            function (tamanho) {
-
-                return produto.tamanhos
-                    .map(function (item) {
-
-                        return normalizarTexto(
-                            item
-                        );
-
-                    })
-                    .includes(
-                        normalizarTexto(
-                            tamanho
-                        )
-                    );
-
-            }
-        );
-
-    }
-
-
-
-    /* =================================================
-       VERIFICAR COR
-    ================================================= */
-
-    function produtoPossuiCor(
-        produto,
-        coresSelecionadas
-    ) {
-
-        if (
-            coresSelecionadas.length === 0
-        ) {
-
-            return true;
-
-        }
-
-
-        if (
-            !produto ||
-            !Array.isArray(produto.cores)
-        ) {
-
-            return false;
-
-        }
-
-
-        const coresProduto =
-            produto.cores.map(
-                function (cor) {
-
-                    if (
-                        typeof cor === "string"
-                    ) {
-
-                        return normalizarTexto(
-                            cor
-                        );
-
-                    }
-
-
-                    return normalizarTexto(
-                        cor.nome
-                    );
-
-                }
-            );
-
-
-        return coresSelecionadas.some(
-            function (cor) {
-
-                return coresProduto.includes(
-                    normalizarTexto(cor)
-                );
-
-            }
-        );
-
-    }
-
-
-
-    /* =================================================
-       APLICAR FILTROS
-    ================================================= */
-
-    function aplicarFiltros() {
-
-
-        const categoriasSelecionadas =
-            Array.from(
-                filtrosCategoria
-            )
-            .filter(function (checkbox) {
-
-                return checkbox.checked;
-
-            })
-            .map(function (checkbox) {
-
-                return checkbox.value;
-
-            });
-
-
-
-        const tamanhosSelecionados =
-            Array.from(
-                filtrosTamanho
-            )
-            .filter(function (checkbox) {
-
-                return checkbox.checked;
-
-            })
-            .map(function (checkbox) {
-
-                return checkbox.value;
-
-            });
-
-
-
-        const coresSelecionadas =
-            Array.from(
-                filtrosCor
-            )
-            .filter(function (botao) {
-
-                return botao.classList.contains(
-                    "ativo"
-                );
-
-            })
-            .map(function (botao) {
-
-                return botao.dataset.cor;
-
-            });
-
-
-
-        let quantidadeVisivel = 0;
-
-
-
-        cards.forEach(
-            function (card) {
-
-
-                const id =
-                    card.dataset.produtoId;
-
-
-                const produto =
-                    obterDadosProduto(id);
-
-
-                const categoriaValida =
-                    produtoPertenceCategoria(
-                        produto,
-                        categoriasSelecionadas
-                    );
-
-
-                const tamanhoValido =
-                    produtoPossuiTamanho(
-                        produto,
-                        tamanhosSelecionados
-                    );
-
-
-                const corValida =
-                    produtoPossuiCor(
-                        produto,
-                        coresSelecionadas
-                    );
-
-
-                const mostrar =
-                    categoriaValida &&
-                    tamanhoValido &&
-                    corValida;
-
-
-
-                if (mostrar) {
-
-                    card.style.display = "";
-
-                    quantidadeVisivel++;
-
-                }
-
-                else {
-
-                    card.style.display = "none";
-
-                }
-
-            }
-        );
-
-
-
-        /* =============================================
-           CONTADOR
-        ============================================== */
-
-        if (
-            quantidadeVisivel === 1
-        ) {
-
-            contadorProdutos.textContent =
-                "1 produto encontrado";
-
-        }
-
-        else {
-
-            contadorProdutos.textContent =
-                quantidadeVisivel +
-                " produtos encontrados";
-
-        }
-
-
-
-        /* =============================================
-           NENHUM RESULTADO
-        ============================================== */
-
-        if (
-            quantidadeVisivel === 0
-        ) {
-
-            nenhumResultado.style.display =
-                "flex";
-
-        }
-
-        else {
-
-            nenhumResultado.style.display =
-                "none";
-
-        }
-
-    }
-
-
-
-    /* =================================================
-       EVENTOS — CATEGORIAS
-    ================================================= */
-
-    filtrosCategoria.forEach(
-        function (checkbox) {
-
-            checkbox.addEventListener(
-                "change",
-                aplicarFiltros
-            );
-
-        }
-    );
-
-
-
-    /* =================================================
-       EVENTOS — TAMANHOS
-    ================================================= */
-
-    filtrosTamanho.forEach(
-        function (checkbox) {
-
-            checkbox.addEventListener(
-                "change",
-                aplicarFiltros
-            );
-
-        }
-    );
-
-
-
-    /* =================================================
-       EVENTOS — CORES
-    ================================================= */
-
-    filtrosCor.forEach(
-        function (botao) {
-
-            botao.addEventListener(
-                "click",
-                function () {
-
-                    botao.classList.toggle(
-                        "ativo"
-                    );
-
-                    aplicarFiltros();
-
-                }
-            );
-
-        }
-    );
-
-
-
-    /* =================================================
-       LIMPAR FILTROS
-    ================================================= */
-
-    function resetarFiltros() {
-
-
-        filtrosCategoria.forEach(
-            function (checkbox) {
-
-                checkbox.checked = false;
-
-            }
-        );
-
-
-        filtrosTamanho.forEach(
-            function (checkbox) {
-
-                checkbox.checked = false;
-
-            }
-        );
-
-
-        filtrosCor.forEach(
-            function (botao) {
-
-                botao.classList.remove(
-                    "ativo"
-                );
-
-            }
-        );
-
-
-        /*
-         * Remove a categoria da URL sem
-         * recarregar a página.
-         */
-
-        const url =
-            new URL(
-                window.location.href
-            );
-
-
-        url.searchParams.delete(
-            "categoria"
-        );
-
-
-        window.history.replaceState(
-            {},
-            "",
-            url
-        );
-
-
-        aplicarFiltros();
-
-    }
-
-
-
-    limparFiltros.addEventListener(
-        "click",
-        resetarFiltros
-    );
-
-
-    limparFiltrosResultado.addEventListener(
-        "click",
-        resetarFiltros
-    );
-
-
-
-    /* =================================================
-       VER COLEÇÃO COMPLETA
-    ================================================= */
-
-    
-if (verColecaoCompleta) {
-    verColecaoCompleta.addEventListener(
-        "click",
-        function () {
-
-            resetarFiltros();
-
-            window.scrollTo({
-                top: document.querySelector(".catalogo").offsetTop - 40,
-                behavior: "smooth"
-            });
-
-        }
-    );
-}
-
-
-
-    /* =================================================
-       PRIMEIRA EXECUÇÃO
-    ================================================= */
-
-    aplicarFiltros();
-
-});
-
-</script>
+<script src="js/catalogo.js"></script>
 
 
 
@@ -2263,6 +1583,10 @@ document.addEventListener(
 
 
 
+                if (listaTamanhos.length === 1) {
+                    selecionarTamanho(listaTamanhos[0], tamanhos.firstElementChild);
+                }
+
                 /* =====================================
                    ABRIR MODAL
                 ====================================== */
@@ -2270,6 +1594,9 @@ document.addEventListener(
                 overlay.classList.add(
                     "ativo"
                 );
+                window.armoireDialogos?.abrir(overlay, {
+                    nome: "Compra rápida", fechar: fecharQuickShop, inicial: fechar
+                });
 
 
                 document.body.classList.add(
@@ -2338,14 +1665,12 @@ document.addEventListener(
                 if (!produtoAtual) return;
 
 
-                if (
-                    produtoAtual.estoque &&
-                    quantidadeAtual >=
-                    produtoAtual.estoque
-                ) {
-
+                const mensagemEstoque = window.validarEstoqueCarrinho(
+                    produtoAtual.id, quantidadeAtual + 1
+                );
+                if (mensagemEstoque) {
+                    mostrarToast(mensagemEstoque);
                     return;
-
                 }
 
 
@@ -2430,11 +1755,15 @@ document.addEventListener(
                     "function"
                 ) {
 
-                    adicionarCarrinho(
+                    const adicionado = adicionarCarrinho(
                         produtoAtual.id,
-                        quantidadeAtual
+                        quantidadeAtual,
+                        tamanhoAtual
                     );
+                    if (!adicionado) return;
 
+                } else {
+                    return;
                 }
 
 
@@ -2455,6 +1784,7 @@ document.addEventListener(
             overlay.classList.remove(
                 "ativo"
             );
+            window.armoireDialogos?.fechar(overlay);
 
 
             document.body.classList.remove(
@@ -2531,58 +1861,6 @@ document.addEventListener(
 
 
 
-        /* =============================================
-           BOTÕES COMPRAR
-        ============================================== */
-
-        document
-            .querySelectorAll(
-                ".produto[data-produto-id] button"
-            )
-            .forEach(
-                function (botao) {
-
-
-                    botao.addEventListener(
-                        "click",
-                        function (evento) {
-
-
-                            evento.preventDefault();
-
-                            evento.stopPropagation();
-
-
-                            const produto =
-                                botao.closest(
-                                    ".produto"
-                                );
-
-
-                            if (!produto) {
-                                return;
-                            }
-
-
-                            const idProduto =
-                                produto.dataset.produtoId;
-
-
-                            if (!idProduto) {
-                                return;
-                            }
-
-
-                            abrirQuickShop(
-                                idProduto
-                            );
-
-                        }
-                    );
-
-                }
-            );
-
     }
 );
 
@@ -2594,35 +1872,7 @@ document.addEventListener(
      CONTADOR / CARRINHO
 ===================================================== -->
 
-<script>
 
-document.addEventListener(
-    "DOMContentLoaded",
-    function () {
-
-        if (
-            typeof atualizarContador ===
-            "function"
-        ) {
-
-            atualizarContador();
-
-        }
-
-
-        if (
-            typeof atualizarCarrinho ===
-            "function"
-        ) {
-
-            atualizarCarrinho();
-
-        }
-
-    }
-);
-
-</script>
 <script src="js/armoire-supabase.js"></script>
 <script src="js/menu-catalogo.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
@@ -2706,6 +1956,7 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 </script>
 
+<script src="js/demonstracao.js"></script>
 </body>
 
 </html>

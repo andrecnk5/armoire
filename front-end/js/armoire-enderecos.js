@@ -2,15 +2,12 @@
 (() => {
   "use strict";
 
-  const URL = "https://wcuutgmwlipshdpqxbim.supabase.co";
-  const KEY = "sb_publishable_sbX0g8RVoczkFCE4rRtrzQ_n7xvWHL1";
+  if (window.armoireEnderecosIniciado) return;
+  const sb = window.armoireServico?.cliente();
+  if (!sb) return; // A conta exibe a indisponibilidade do SDK.
+  window.armoireEnderecosIniciado = true;
+  const executar = window.armoireServico.executar;
 
-  if (!window.supabase?.createClient) {
-    console.error("Supabase não carregado.");
-    return;
-  }
-
-  const sb = window.supabase.createClient(URL, KEY);
   const campos = [
     ["destinatario", "Nome do destinatário"],
     ["cep", "CEP"],
@@ -25,7 +22,10 @@
   let enderecos = [];
   let carregando = false;
   let usuarioAtual = null;
+  let idSessao;
   let versao = 0;
+  let erroCarregamento = '';
+  let salvando = false;
 
   const $ = id => document.getElementById(id);
 
@@ -51,42 +51,29 @@
   async function carregar() {
     const atual = ++versao;
     carregando = true;
+    erroCarregamento = '';
     renderizar();
-
-    const { data: auth, error: authError } =
-      await sb.auth.getUser();
-
-    if (atual !== versao) return;
-
-    if (authError || !auth?.user) {
-      usuarioAtual = null;
-      enderecos = [];
-      carregando = false;
-      renderizar();
-      return;
+    try {
+      const { data: auth, error: authError } = await executar(sb.auth.getUser());
+      if (atual !== versao) return false;
+      if (authError) throw authError;
+      usuarioAtual = auth?.user || null;
+      idSessao = usuarioAtual?.id || null;
+      if (!usuarioAtual) { enderecos = []; return false; }
+      const { data, error } = await executar(sb.from("enderecos").select("*")
+        .eq("usuario_id", usuarioAtual.id).order("criado_em", { ascending: true }));
+      if (atual !== versao) return false;
+      if (error) throw error;
+      if (!Array.isArray(data)) throw new Error("Resposta de endereços inválida.");
+      enderecos = data;
+      return true;
+    } catch (erro) {
+      if (atual === versao) erroCarregamento = "Não foi possível carregar os endereços. Tente novamente.";
+      console.error("Armoire: endereços indisponíveis.", erro);
+      return false;
+    } finally {
+      if (atual === versao) { carregando = false; renderizar(); }
     }
-
-    usuarioAtual = auth.user;
-
-    const { data, error } = await sb
-      .from("enderecos")
-      .select("*")
-      .eq("usuario_id", usuarioAtual.id)
-      .order("criado_em", { ascending: true });
-
-    if (atual !== versao) return;
-
-    carregando = false;
-
-    if (error) {
-      console.error(error);
-      renderizar();
-      mensagem("Não foi possível carregar os endereços.", true);
-      return;
-    }
-
-    enderecos = data || [];
-    renderizar();
   }
 
   function renderizar() {
@@ -103,6 +90,10 @@
       return;
     }
 
+    if (erroCarregamento) {
+      area.appendChild(criar("p", "ac-endereco-texto", erroCarregamento));
+      return;
+    }
     if (!usuarioAtual) {
       area.appendChild(criar("p", "ac-endereco-texto",
         "Entre na sua conta para gerenciar seus endereços."));
@@ -182,6 +173,8 @@
   }
 
   function mostrarFormulario(tipo, endereco = null) {
+    const dono = usuarioAtual?.id;
+    const versaoFormulario = versao;
     const area = $("ac-detail-content");
     if (!area) return;
 
@@ -284,15 +277,15 @@ if (cep.length !== 8) {
     mensagemFormulario("Consultando CEP...");
 
     try {
-        const resposta = await fetch(
+        const resposta = await executar(fetch(
             `https://viacep.com.br/ws/${cep}/json/`
-        );
+        ));
 
         if (!resposta.ok) {
             throw new Error("Falha na consulta do CEP.");
         }
 
-        const dados = await resposta.json();
+        const dados = await executar(resposta.json());
 
         // Ignora resultados de consultas antigas.
         if (consultaAtual !== consultaCEPAtual) {
@@ -363,6 +356,7 @@ if (cep.length !== 8) {
     form.addEventListener("submit", async evento => {
       evento.preventDefault();
 
+      if (salvando) return;
       const valores = {};
 
       campos.forEach(([nome]) => {
@@ -389,18 +383,19 @@ if (cep.length !== 8) {
         return;
       }
 
+      salvando = true;
       salvar.disabled = true;
       salvar.textContent = "SALVANDO...";
 
       try {
         const { data: auth, error: authError } =
-          await sb.auth.getUser();
+          await executar(sb.auth.getUser());
 
-        if (authError || !auth?.user) {
-          throw new Error("Sua sessão expirou. Entre novamente.");
+        if (authError || !auth?.user || auth.user.id !== dono || versaoFormulario !== versao) {
+          throw new Error("Sua conta mudou ou a sessão expirou. Entre novamente.");
         }
 
-        const { error } = await sb
+        const { error } = await executar(sb
           .from("enderecos")
           .upsert({
             usuario_id: auth.user.id,
@@ -409,12 +404,12 @@ if (cep.length !== 8) {
             atualizado_em: new Date().toISOString()
           }, {
             onConflict: "usuario_id,tipo"
-          });
+          }), true);
 
         if (error) throw error;
+        if (versaoFormulario !== versao) return;
 
-        await carregar();
-        mensagem("Endereço salvo com sucesso!");
+        if (await carregar()) mensagem("Endereço salvo com sucesso!");
       } catch (erro) {
         console.error(erro);
         mensagemFormulario(
@@ -422,6 +417,7 @@ if (cep.length !== 8) {
           true
         );
       } finally {
+        salvando = false;
         salvar.disabled = false;
         salvar.textContent = "SALVAR ENDEREÇO";
       }
@@ -431,28 +427,28 @@ if (cep.length !== 8) {
   }
 
   async function excluirEndereco(endereco) {
+    const dono = usuarioAtual?.id;
     if (!confirm(
       `Deseja excluir o endereço ${endereco.tipo}?`
     )) return;
 
     try {
       const { data: auth, error: authError } =
-        await sb.auth.getUser();
+        await executar(sb.auth.getUser());
 
-      if (authError || !auth?.user) {
+      if (authError || !auth?.user || auth.user.id !== dono) {
         throw new Error("Faça login novamente.");
       }
 
-      const { error } = await sb
+      const { error } = await executar(sb
         .from("enderecos")
         .delete()
         .eq("id", endereco.id)
-        .eq("usuario_id", auth.user.id);
+        .eq("usuario_id", auth.user.id), true);
 
       if (error) throw error;
 
-      await carregar();
-      mensagem("Endereço excluído com sucesso!");
+      if (await carregar()) mensagem("Endereço excluído com sucesso!");
     } catch (erro) {
       console.error(erro);
       mensagem("Não foi possível excluir o endereço.", true);
@@ -469,13 +465,17 @@ if (cep.length !== 8) {
   });
 
   // Limpa os dados ao sair da conta.
-  sb.auth.onAuthStateChange((evento) => {
-    if (evento === "SIGNED_OUT") {
-      versao++;
-      usuarioAtual = null;
-      enderecos = [];
-      renderizar();
-    }
+  sb.auth.onAuthStateChange((_evento, sessao) => {
+    const id = sessao?.user?.id || null;
+    if (id === idSessao) return;
+    idSessao = id;
+    versao++;
+    usuarioAtual = null;
+    enderecos = [];
+    erroCarregamento = '';
+    carregando = false;
+    renderizar();
+    if (sessao?.user && secaoAberta()) setTimeout(carregar, 0);
   });
 
 })();

@@ -7,9 +7,6 @@
      CONFIGURAÇÕES E SUPABASE
   ========================================== */
 
-  const URL = "https://wcuutgmwlipshdpqxbim.supabase.co";
-  const KEY = "sb_publishable_sbX0g8RVoczkFCE4rRtrzQ_n7xvWHL1";
-
   const $ = id => document.getElementById(id);
 
   const status = $("ma-status");
@@ -22,18 +19,21 @@
   const saveFeedback = $("ma-save-feedback");
 
   if (
-    !window.supabase?.createClient ||
+    !window.armoireServico?.cliente() ||
     !status || !wardrobe || !rows ||
     !feedback || !resetButton || !saveButton
   ) {
+    if (status) {
+      status.hidden = false;
+      status.textContent = "Serviço indisponível. Não foi possível carregar o MY ARMOIRE.";
+    }
+    if (wardrobe) wardrobe.hidden = true;
     console.error("MY ARMOIRE: dependências ausentes.");
     return;
   }
 
-  const sb = window.armoireSupabase ||
-    window.supabase.createClient(URL, KEY);
-
-  window.armoireSupabase = sb;
+  const sb = window.armoireServico.cliente();
+  const executar = window.armoireServico.executar;
 
   /* ==========================================
      CATEGORIAS
@@ -61,6 +61,8 @@
   const selecoes = new Map();
 
   let carregando = false;
+  let requisicaoCarregamento = 0;
+  let usuarioId = null;
   let finalizando = false;
   let salvandoLook = false;
 
@@ -144,6 +146,17 @@
     wardrobe.hidden = true;
     status.hidden = false;
     status.textContent = texto;
+  }
+
+  function solicitarSessao() {
+    usuarioId = null;
+    exibirErro("Entre na sua conta para acessar o MY ARMOIRE.");
+    const login = elemento("button", "ma-login", "Entrar na minha conta");
+    login.type = "button";
+    login.addEventListener("click", () => {
+      document.dispatchEvent(new CustomEvent("armoire:solicitar-login"));
+    });
+    status.appendChild(login);
   }
 
   /* ==========================================
@@ -971,9 +984,13 @@
   ========================================== */
 
   async function carregar() {
-    if (carregando) return;
-
+    const atual = ++requisicaoCarregamento;
     carregando = true;
+    roletas.forEach(roleta => {
+      cancelAnimationFrame(roleta.raf);
+      clearTimeout(roleta.timer);
+    });
+    roletas.clear(); selecoes.clear(); rows.replaceChildren();
 
     wardrobe.hidden = true;
     status.hidden = false;
@@ -985,30 +1002,31 @@
       const {
         data: auth,
         error: erroAuth
-      } = await sb.auth.getUser();
+      } = await executar(sb.auth.getUser());
 
-      if (erroAuth) throw erroAuth;
+      if (atual !== requisicaoCarregamento) return;
+      if (erroAuth && erroAuth.name !== "AuthSessionMissingError") throw erroAuth;
+      usuarioId = auth?.user?.id || null;
 
-      if (!auth?.user) {
-        exibirErro(
-          "Entre na sua conta para acessar o MY ARMOIRE."
-        );
-
+      if (erroAuth || !auth?.user) {
+        solicitarSessao();
         return;
       }
 
       const {
         data: favoritos,
         error: erroFavoritos
-      } = await sb
+      } = await executar(sb
         .from("favoritos")
         .select("produto_id")
-        .eq("usuario_id", auth.user.id);
+        .eq("usuario_id", auth.user.id));
 
+      if (atual !== requisicaoCarregamento) return;
       if (erroFavoritos) {
         throw erroFavoritos;
       }
 
+      if (!Array.isArray(favoritos)) throw new Error("Resposta de favoritos inválida.");
       const ids = [
         ...new Set(
           (favoritos || [])
@@ -1030,18 +1048,20 @@
       const {
         data: produtos,
         error: erroProdutos
-      } = await sb
+      } = await executar(sb
         .from("products")
         .select(
           "source_id,name,category,price,images,image_url,is_active"
         )
         .in("source_id", ids)
-        .eq("is_active", true);
+        .eq("is_active", true));
 
+      if (atual !== requisicaoCarregamento) return;
       if (erroProdutos) {
         throw erroProdutos;
       }
 
+      if (!Array.isArray(produtos)) throw new Error("Resposta de produtos inválida.");
       const mapa = new Map(
         (produtos || []).map(p => [
           obterId(p),
@@ -1061,9 +1081,15 @@
         return;
       }
 
+      if (ordenados.some(p => !window.armoireServico.idProduto(p.source_id) ||
+          p.is_active !== true || typeof p.name !== 'string' || !p.name.trim() ||
+          p.price == null || p.price === '' || !Number.isFinite(Number(p.price)) || Number(p.price) < 0)) {
+        throw new Error("Há uma peça com dados inválidos no guarda-roupa.");
+      }
       renderizar(ordenados);
 
     } catch (erro) {
+      if (atual !== requisicaoCarregamento) return;
       console.error(
         "MY ARMOIRE:",
         erro
@@ -1075,7 +1101,7 @@
       );
 
     } finally {
-      carregando = false;
+      if (atual === requisicaoCarregamento) carregando = false;
     }
   }
 
@@ -1238,7 +1264,8 @@
           return;
         }
 
-        const ids = [
+        if (!Array.isArray(favoritos)) throw new Error("Resposta de favoritos inválida.");
+      const ids = [
           ...new Set(
             resultados.map(
               r => obterId(r.produto)
@@ -1335,6 +1362,10 @@
       );
     }
 
+    if (resultados.some(({ produto }) => !window.armoireServico.idProduto(produto.source_id) ||
+        produto.price == null || produto.price === '' || !Number.isFinite(Number(produto.price)) || Number(produto.price) < 0)) {
+      throw new Error("Uma peça selecionada tem dados inválidos. Recarregue o guarda-roupa.");
+    }
     const pecas = resultados.map(
       ({ categoria, produto }) => ({
         categoria: categoria,
@@ -1359,12 +1390,13 @@
 
   async function salvarLook() {
     if (
-      salvandoLook ||
+      carregando || salvandoLook ||
       finalizando
     ) {
       return;
     }
 
+    const atual = requisicaoCarregamento;
     salvandoLook = true;
 
     if (saveLookButton) {
@@ -1381,7 +1413,7 @@
       const {
         data: auth,
         error: erroAuth
-      } = await sb.auth.getUser();
+      } = await executar(sb.auth.getUser());
 
       if (erroAuth) {
         throw erroAuth;
@@ -1398,6 +1430,9 @@
       const composicao =
         await obterComposicaoAtual();
 
+      if (atual !== requisicaoCarregamento || usuarioId !== auth.user.id) {
+        throw new Error("Sua conta mudou. Confira o guarda-roupa antes de salvar.");
+      }
       const total =
         composicao.pecas.length;
 
@@ -1425,18 +1460,19 @@
 
       const {
         error: erroSalvar
-      } = await sb
+      } = await executar(sb
         .from("looks_salvos")
         .insert({
           user_id: auth.user.id,
           nome: nome,
           composicao: composicao
-        });
+        }), true);
 
       if (erroSalvar) {
         throw erroSalvar;
       }
 
+      if (atual !== requisicaoCarregamento) return;
       /* CONFIRMAÇÃO */
 
       mensagemSalvamento(
@@ -1493,6 +1529,19 @@
      INICIALIZAÇÃO
   ========================================== */
 
+  sb.auth.onAuthStateChange((_evento, sessao) => {
+    if (usuarioId === (sessao?.user?.id || null)) return;
+    usuarioId = sessao?.user?.id || null;
+    requisicaoCarregamento++;
+    carregando = false;
+    roletas.forEach(roleta => { cancelAnimationFrame(roleta.raf); clearTimeout(roleta.timer); });
+    roletas.clear(); selecoes.clear(); rows.replaceChildren();
+    mensagemSalvamento('');
+    if (usuarioId) {
+      exibirErro("Carregando seu guarda-roupa...");
+      setTimeout(carregar, 0);
+    } else solicitarSessao();
+  });
   carregar();
 
 })();

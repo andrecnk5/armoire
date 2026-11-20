@@ -23,6 +23,11 @@ document.addEventListener("DOMContentLoaded", () => {
     menu.setAttribute("aria-hidden", String(!aberto));
     overlay.setAttribute("aria-hidden", String(!aberto));
     abrir.setAttribute("aria-expanded", String(aberto));
+    if (aberto) window.armoireDialogos?.abrir(menu, {
+      nome: "Menu principal", fechar: () => alternarMenu(false), inicial: fechar,
+      origem: abrir, externos: [overlay]
+    });
+    else window.armoireDialogos?.fechar(menu);
   }
 
   abrir.addEventListener("click", () => alternarMenu(true));
@@ -49,21 +54,41 @@ document.addEventListener("DOMContentLoaded", () => {
 ========================================================= */
 
 document.addEventListener("DOMContentLoaded", async () => {
-  if (window.armoireCatalogoReady) {
-    await window.armoireCatalogoReady;
+  const painelEstado = document.getElementById("estadoProduto");
+  const tituloEstado = document.getElementById("tituloEstadoProduto");
+  const descricaoEstado = document.getElementById("descricaoEstadoProduto");
+  const conteudoProduto = document.querySelector(".produto-container");
+  const relacionados = document.querySelector(".produtos-relacionados");
+  const parametros = new URLSearchParams(window.location.search);
+  const idProduto = parametros.get("id")?.trim();
+
+  function produtoNaoEncontrado() {
+    document.title = "Produto não encontrado | Armoire Central";
+    if (tituloEstado) tituloEstado.textContent = "Produto não encontrado";
+    if (descricaoEstado) descricaoEstado.textContent = window.armoireCatalogoEstado?.fonte === "local" && idProduto
+      ? "Não foi possível confirmar esta peça no catálogo local. Tente novamente ou explore os produtos disponíveis."
+      : "Esta peça não está disponível na coleção atual. Explore os produtos do catálogo.";
+    if (painelEstado) painelEstado.hidden = false;
+    if (conteudoProduto) conteudoProduto.hidden = true;
+    if (relacionados) relacionados.hidden = true;
+    const comprar = document.getElementById("btnComprar");
+    if (comprar) comprar.disabled = true;
   }
 
-  const parametros = new URLSearchParams(window.location.search);
-  const idProduto = parametros.get("id");
-
-  if (
-    !idProduto ||
-    typeof produtos === "undefined" ||
-    !produtos[idProduto]
-  ) {
-    console.error("Produto não encontrado:", idProduto);
+  // Sem ID, o retorno ao catálogo aparece imediatamente, mesmo com rede lenta.
+  if (!idProduto) { produtoNaoEncontrado(); return; }
+  if (window.armoireCatalogoReady) await window.armoireCatalogoReady;
+  if (typeof produtos === "undefined" ||
+      !Object.prototype.hasOwnProperty.call(produtos, idProduto) ||
+      !produtos[idProduto] || produtos[idProduto].ativo === false) {
+    produtoNaoEncontrado();
     return;
   }
+  const avisoCatalogo = document.getElementById("avisoCatalogoProduto");
+  if (avisoCatalogo) avisoCatalogo.hidden = window.armoireCatalogoEstado?.fonte !== "local";
+  if (painelEstado) painelEstado.hidden = true;
+  if (conteudoProduto) conteudoProduto.hidden = false;
+  if (relacionados) relacionados.hidden = false;
 
   const produto = produtos[idProduto];
 
@@ -132,57 +157,79 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   function carregarGaleria() {
     if (!imagemPrincipal || !miniaturas) return;
-
-    const imagens = Array.isArray(produto.imagens)
-      ? produto.imagens
-      : [];
-
+    const aviso = $("estadoImagem");
+    // O fallback pertence ao mesmo produto e usa a galeria local já verificada.
+    const locais = window.armoireCatalogoLocal?.[idProduto]?.imagens || [];
+    const imagens = [...new Set([
+      ...(Array.isArray(produto.imagens) ? produto.imagens : []), ...locais
+    ])].filter(imagem => typeof imagem === "string" && imagem.trim());
+    const falhas = new Set();
+    let timerImagem;
     miniaturas.replaceChildren();
-
-    if (!imagens.length) {
-      imagemPrincipal.removeAttribute("src");
-      return;
-    }
-
-    imagemPrincipal.src = imagens[0];
     imagemPrincipal.alt = produto.nome;
 
+    function exibir(imagem, animar = false) {
+      clearTimeout(timerImagem);
+      if (!imagem || falhas.has(imagem)) return;
+      imagemPrincipal.hidden = false;
+      if (aviso) aviso.hidden = true;
+      miniaturas.querySelectorAll("img").forEach(miniatura => {
+        const selecionada = miniatura.dataset.imagem === imagem;
+        miniatura.classList.toggle("ativa", selecionada);
+        miniatura.closest("button")?.setAttribute("aria-pressed", String(selecionada));
+      });
+      if (animar) {
+        imagemPrincipal.classList.add("troca-imagem");
+        timerImagem = setTimeout(() => {
+          imagemPrincipal.src = imagem;
+          imagemPrincipal.classList.remove("troca-imagem");
+        }, 180);
+      } else {
+        imagemPrincipal.src = imagem;
+        imagemPrincipal.classList.remove("troca-imagem");
+      }
+    }
+
+    function indisponivel() {
+      clearTimeout(timerImagem);
+      imagemPrincipal.removeAttribute("src");
+      imagemPrincipal.hidden = true;
+      if (aviso) aviso.hidden = false;
+    }
+
+    function falhou(imagem) {
+      falhas.add(imagem);
+      miniaturas.querySelectorAll("img").forEach(miniatura => {
+        if (miniatura.dataset.imagem === imagem) {
+          miniatura.hidden = true;
+          const botao = miniatura.closest("button");
+          if (botao) botao.hidden = true;
+        }
+      });
+      if (imagemPrincipal.getAttribute("src") === imagem) {
+        const proxima = imagens.find(item => !falhas.has(item));
+        if (proxima) exibir(proxima);
+        else indisponivel();
+      }
+    }
+    imagemPrincipal.addEventListener("error", () => falhou(imagemPrincipal.getAttribute("src")));
     imagens.forEach((imagem, index) => {
       const miniatura = document.createElement("img");
-
-      miniatura.src = imagem;
+      miniatura.dataset.imagem = imagem;
       miniatura.alt = `${produto.nome} ${index + 1}`;
-      miniatura.className = index === 0 ? "ativa" : "";
-
-      miniatura.addEventListener("click", () => {
-        trocarImagem(imagem, miniatura);
-      });
-
-      miniaturas.appendChild(miniatura);
+      miniatura.addEventListener("error", () => falhou(imagem));
+      const botao = document.createElement("button");
+      botao.type = "button";
+      botao.className = "miniatura-botao";
+      botao.setAttribute("aria-label", `Ver imagem ${index + 1} de ${produto.nome}`);
+      botao.setAttribute("aria-pressed", "false");
+      botao.addEventListener("click", () => exibir(imagem, true));
+      miniatura.src = imagem;
+      botao.appendChild(miniatura);
+      miniaturas.appendChild(botao);
     });
-  }
-
-  let timerImagem;
-
-  function trocarImagem(imagem, miniatura) {
-    if (!imagemPrincipal) return;
-
-    clearTimeout(timerImagem);
-
-    imagemPrincipal.classList.remove("troca-imagem");
-    void imagemPrincipal.offsetWidth;
-    imagemPrincipal.classList.add("troca-imagem");
-
-    timerImagem = setTimeout(() => {
-      imagemPrincipal.src = imagem;
-      imagemPrincipal.classList.remove("troca-imagem");
-    }, 180);
-
-    miniaturas.querySelectorAll("img").forEach(img => {
-      img.classList.remove("ativa");
-    });
-
-    miniatura.classList.add("ativa");
+    if (imagens.length) exibir(imagens[0]);
+    else indisponivel();
   }
 
   carregarGaleria();
@@ -202,6 +249,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       const botao = document.createElement("button");
       botao.type = "button";
       botao.className = "btn-cor";
+      botao.setAttribute("aria-pressed", String(index === 0));
       botao.setAttribute("aria-label", cor.nome);
       botao.style.setProperty(
         "--cor-produto",
@@ -215,6 +263,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       if (index === 0) {
         botao.classList.add("ativo");
+        botao.setAttribute("aria-pressed", "true");
         if (corSelecionada) {
           corSelecionada.textContent = cor.nome;
         }
@@ -223,9 +272,11 @@ document.addEventListener("DOMContentLoaded", async () => {
       botao.addEventListener("click", () => {
         coresProduto.querySelectorAll(".btn-cor").forEach(outro => {
           outro.classList.remove("ativo");
+          outro.setAttribute("aria-pressed", "false");
         });
 
         botao.classList.add("ativo");
+        botao.setAttribute("aria-pressed", "true");
 
         if (corSelecionada) {
           corSelecionada.textContent = cor.nome;
@@ -253,14 +304,19 @@ document.addEventListener("DOMContentLoaded", async () => {
       const botao = document.createElement("button");
       botao.type = "button";
       botao.className = "btn-tamanho";
+      botao.setAttribute("aria-pressed", "false");
       botao.textContent = tamanho;
 
       botao.addEventListener("click", () => {
         tamanhosProduto
           .querySelectorAll(".btn-tamanho")
-          .forEach(outro => outro.classList.remove("ativo"));
+          .forEach(outro => {
+            outro.classList.remove("ativo");
+            outro.setAttribute("aria-pressed", "false");
+          });
 
         botao.classList.add("ativo");
+        botao.setAttribute("aria-pressed", "true");
 
         if (tamanhoSelecionado) {
           tamanhoSelecionado.textContent = tamanho;
@@ -277,6 +333,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       const unico = tamanhosProduto.querySelector(".btn-tamanho");
 
       unico?.classList.add("ativo");
+      unico?.setAttribute("aria-pressed", "true");
 
       if (tamanhoSelecionado) {
         tamanhoSelecionado.textContent = "Único";
@@ -324,12 +381,13 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   aumentarQuantidade?.addEventListener("click", () => {
-    const estoque = Number(produto.estoque) || 99;
-
-    if (quantidadeAtual < estoque) {
-      quantidadeAtual++;
-      atualizarQuantidade();
+    const erro = window.validarEstoqueCarrinho(produto.id, quantidadeAtual + 1);
+    if (erro) {
+      mostrarToast(erro);
+      return;
     }
+    quantidadeAtual++;
+    atualizarQuantidade();
   });
 
   atualizarQuantidade();
@@ -345,23 +403,21 @@ document.addEventListener("DOMContentLoaded", async () => {
       ".btn-tamanho.ativo"
     );
 
-    if (tamanhos.length > 1 && !tamanhoAtivo) {
+    if (tamanhos.length !== 1 && !tamanhoAtivo) {
       mostrarAvisoTamanho();
       return;
     }
 
     const tamanho = tamanhoAtivo
       ? tamanhoAtivo.textContent.trim()
-      : "Único";
+      : tamanhos[0];
 
     if (typeof window.adicionarCarrinho !== "function") {
       console.error("adicionarCarrinho() não foi encontrada.");
       return;
     }
 
-    btnComprar.classList.add("adicionando-carrinho");
-
-    window.adicionarCarrinho(
+    const adicionado = window.adicionarCarrinho(
       produto.id,
       quantidadeAtual,
       tamanho,
@@ -372,6 +428,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         categoria: produto.categoria || ""
       }
     );
+
+    if (!adicionado) return;
+    btnComprar.classList.add("adicionando-carrinho");
 
     localStorage.setItem(
       "ultimoTamanhoProduto",

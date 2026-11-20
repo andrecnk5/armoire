@@ -1,0 +1,130 @@
+/* Ajustes pontuais sobre os estilos originais dos estudantes. */
+[hidden] { display: none !important; }
+body.armoire-dialogo-aberto { overflow: hidden; }
+body :is(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 3px solid #52759e;
+  outline-offset: 3px;
+}
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+body header, body .header-home {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  padding-left: clamp(12px, 3vw, 48px);
+  padding-right: clamp(12px, 3vw, 48px);
+  gap: 12px;
+}
+body header .logo { min-width: 0; flex: 0 1 auto; }
+body header .logo img {
+  width: clamp(90px, 12vw, 150px);
+  max-width: 100%;
+  height: auto;
+  max-height: 70px;
+  margin: 0;
+  object-fit: contain;
+}
+body header .icons, body header .icons-home {
+  display: flex;
+  align-items: center;
+  flex: 0 0 auto;
+  gap: clamp(8px, 1.6vw, 20px);
+}
+body header .botao-conta, body header .icone-carrinho,
+body header .icone-carrinho-home {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  width: 36px;
+  min-height: 36px;
+  flex: 0 0 auto;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+body header .botao-conta i { display: inline-block; }
+.catalogo-card, .produto-info, .produto-galeria, .dados-item { min-width: 0; }
+.catalogo-card h4, .dados-item h4, #nomeProduto { overflow-wrap: anywhere; }
+.miniatura-botao {
+  display: block;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  min-width: 0;
+}
+.miniatura-botao img { max-width: 100%; }
+.conteudo-composicao { margin: 0; padding-left: 0; }
+body .quick-shop, body .ac-modal, body .ma-cart-drawer {
+  box-sizing: border-box;
+  max-width: calc(100vw - 24px);
+  max-height: calc(100dvh - 24px);
+  overflow-y: auto;
+}
+body .toast-carrinho {
+  box-sizing: border-box;
+  min-width: 0;
+  max-width: calc(100vw - 24px);
+  right: 12px;
+  overflow-wrap: anywhere;
+}
+@media (max-width: 900px) {
+  body .catalogo, body .catalogo.filtros-ocultos {
+    grid-template-columns: minmax(0, 1fr);
+    padding-left: 18px;
+    padding-right: 18px;
+  }
+  body .produto-container { min-width: 0; max-width: 100%; }
+}
+@media (max-width: 600px) {
+  body header .icone-pesquisa, body header .icons > .fa-magnifying-glass,
+  body header .icons-home > .fa-magnifying-glass { display: none; }
+  body header .icons, body header .icons-home { gap: 8px; }
+  body header .logo img { width: 90px; }
+  body .top-bar {
+    box-sizing: border-box;
+    height: 40px;
+    min-height: 40px;
+    font-size: 10px;
+    line-height: 1.4;
+    padding: 4px 12px;
+    text-align: center;
+  }
+  body .top-bar p { margin: 0; }
+  body .top-bar + header { top: 40px; }
+  body .banner-overlay h1 {
+    box-sizing: border-box;
+    max-width: 100%;
+    padding-inline: 12px;
+    font-size: clamp(28px, 10vw, 45px);
+    letter-spacing: clamp(2px, .8vw, 5px);
+  }
+  body .quick-shop { grid-template-columns: minmax(0, 1fr); padding: 24px 16px; }
+  body .quick-shop-imagem img { max-width: 100%; max-height: 230px; object-fit: contain; }
+  body .quick-shop-info { min-width: 0; padding: 0; }
+  body .produto-galeria { grid-template-columns: 54px minmax(0, 1fr); gap: 12px; }
+  body .miniaturas img { width: 54px; }
+  body .produto-container { width: auto; margin-left: 12px; margin-right: 12px; }
+  body .breadcrumb { box-sizing: border-box; max-width: 100%; overflow-wrap: anywhere; flex-wrap: wrap; }
+  body .newsletter-form { max-width: 100%; flex-wrap: wrap; }
+  body .newsletter-form input { min-width: 0; max-width: 100%; }
+  body .newsletter-form button { max-width: 100%; }
+  body .footer, body footer { overflow-wrap: anywhere; }
+}
+@media (max-width: 375px) {
+  body .catalogo .grade-produtos { grid-template-columns: minmax(0, 1fr); }
+  body .produto-opcoes, body .acoes-compra { min-width: 0; flex-wrap: wrap; }
+}

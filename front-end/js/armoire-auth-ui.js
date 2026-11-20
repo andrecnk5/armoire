@@ -12,30 +12,12 @@
     // 1. CONFIGURAÇÃO DO SUPABASE
     // ==========================================
 
-    const SUPABASE_URL =
-        'https://wcuutgmwlipshdpqxbim.supabase.co';
-
-    const SUPABASE_ANON_KEY =
-        'sb_publishable_sbX0g8RVoczkFCE4rRtrzQ_n7xvWHL1';
-
-    if (!window.supabase?.createClient) {
-        console.error(
-            'Armoire: biblioteca Supabase não carregou.'
-        );
-        return;
-    }
-
-    const sb = window.supabase.createClient(
-        SUPABASE_URL,
-        SUPABASE_ANON_KEY,
-        {
-            auth: {
-                persistSession: true,
-                autoRefreshToken: true,
-                detectSessionInUrl: true
-            }
-        }
-    );
+    if (document.getElementById('ac-overlay')) return;
+    const sb = window.armoireServico?.cliente();
+    const executar = window.armoireServico.executar;
+    let sessaoCarregada = false;
+    let erroSessao = '';
+    let versaoSessao = 0;
 
 
     // ==========================================
@@ -229,7 +211,7 @@
                             aria-hidden="true"></i>
 
                         <span>
-                            Meus pedidos
+                            Meus pedidos (demonstração)
                         </span>
 
                         <i
@@ -305,7 +287,7 @@
                             aria-hidden="true"></i>
 
                         <span>
-                            Configurações
+                            Configurações (demonstração)
                         </span>
 
                         <i
@@ -451,6 +433,8 @@
 
         document.body.classList.remove('ac-locked');
 
+        window.armoireDialogos?.fechar(modal);
+        window.armoireDialogos?.fechar(drawer);
         lastFocus = null;
 
         focoAnterior?.focus?.();
@@ -476,6 +460,10 @@
 
         requestAnimationFrame(() => {
             elemento.classList.add('open');
+            window.armoireDialogos?.abrir(elemento, {
+                fechar: close, origem: lastFocus, externos: [overlay],
+                inicial: tipo === 'drawer' ? drawer.querySelector('[data-ac-close]') : $('ac-email')
+            });
         });
 
         const foco =
@@ -572,19 +560,30 @@
     // ==========================================
 
     async function syncSession() {
-        const { data, error } =
-            await sb.auth.getSession();
+        const versao = versaoSessao;
+        try {
+            if (!sb) throw new Error('Serviço de conta indisponível. Tente novamente mais tarde.');
+            const { data, error } =
+                await executar(sb.auth.getSession());
 
-        if (error) {
-            console.warn(
-                'Armoire: erro ao recuperar sessão:',
-                error.message
-            );
-        }
+            if (error) {
+                console.warn(
+                    'Armoire: erro ao recuperar sessão:',
+                    error.message
+                );
+            }
 
-        session = data?.session || null;
-
-        updateAccount();
+            if (error) throw error;
+            if (versao !== versaoSessao) return;
+            session = data?.session || null;
+            erroSessao = '';
+            updateAccount();
+        } catch (erro) {
+            if (versao !== versaoSessao) return;
+            session = null;
+            erroSessao = erro.message || 'Não foi possível verificar sua sessão.';
+            updateAccount();
+        } finally { sessaoCarregada = true; }
     }
 
 
@@ -629,7 +628,7 @@
 
     async function cadastrarUsuario(nome, email, senha) {
         const { data, error } =
-            await sb.auth.signUp({
+            await executar(sb.auth.signUp({
                 email: email.trim().toLowerCase(),
                 password: senha,
 
@@ -639,7 +638,7 @@
                         nome: nome.trim()
                     }
                 }
-            });
+            }), true);
 
         if (error) {
             throw error;
@@ -655,10 +654,10 @@
 
     async function entrarUsuario(email, senha) {
         const { data, error } =
-            await sb.auth.signInWithPassword({
+            await executar(sb.auth.signInWithPassword({
                 email: email.trim().toLowerCase(),
                 password: senha
-            });
+            }), true);
 
         if (error) {
             throw error;
@@ -743,7 +742,9 @@
     form.addEventListener('submit', async (evento) => {
         evento.preventDefault();
 
-        if (busy) {
+        if (busy) return;
+        if (!sb) {
+            message('Serviço de conta indisponível. Tente novamente mais tarde.', true);
             return;
         }
 
@@ -766,8 +767,12 @@
                     dados.senha
                 );
 
-                if (resultado.session) {
+                if (!resultado?.user && !resultado?.session?.user) {
+                    throw new Error('O serviço não confirmou a solicitação de cadastro.');
+                }
+                if (resultado?.session?.user) {
                     session = resultado.session;
+                    form.reset();
 
                     updateAccount();
                     close();
@@ -795,7 +800,11 @@
                     dados.senha
                 );
 
+                if (!resultado?.session?.user) {
+                    throw new Error('O serviço não confirmou sua sessão. Tente entrar novamente.');
+                }
                 session = resultado.session;
+                form.reset();
 
                 updateAccount();
                 close();
@@ -829,8 +838,8 @@
 
     const secoesConta = {
         pedidos: {
-            titulo: 'Meus pedidos',
-            texto: 'Seu histórico de compras aparecerá aqui.'
+            titulo: 'Meus pedidos — demonstração',
+            texto: 'Área demonstrativa. Esta versão não realiza checkout nem cria ou consulta pedidos.'
         },
 
         favoritos: {
@@ -849,17 +858,16 @@
         },
 
         configuracoes: {
-            titulo: 'Configurações',
-            texto: 'Aqui você poderá gerenciar suas informações pessoais e preferências.'
+            titulo: 'Configurações — demonstração',
+            texto: 'Área demonstrativa. A edição de informações pessoais e preferências não está disponível.'
         }
     };
 
     function abrirSecaoConta(secao) {
         const dados = secoesConta[secao];
 
-        if (!dados || !session?.user) {
-            return;
-        }
+        if (!dados) return;
+        if (!session?.user) { abrirConta(); return; }
 
         $('ac-account-home').hidden = true;
         $('ac-account-detail').hidden = false;
@@ -902,6 +910,24 @@
     // 15. ÍCONES DE PERFIL DO SITE
     // ==========================================
 
+    function exibirConta() {
+        if (session?.user) {
+            voltarMinhaConta();
+            open('drawer');
+        } else {
+            setMode('login');
+            open('modal');
+            $('ac-submit').disabled = !sb;
+            if (erroSessao) message(erroSessao, true);
+        }
+    }
+    function abrirConta() {
+        if (sessaoCarregada) { exibirConta(); return Promise.resolve(); }
+        toast('Verificando sua sessão...');
+        return window.armoireAuthReady.then(exibirConta);
+    }
+    window.armoireConta = { abrir: abrirConta };
+
     document
         .querySelectorAll('.fa-user, .icone-perfil')
         .forEach((icone) => {
@@ -925,21 +951,12 @@
 
             function ativar(evento) {
                 evento.preventDefault();
-
-                if (session) {
-                    updateAccount();
-                    voltarMinhaConta();
-                    open('drawer');
-
-                } else {
-                    setMode('login');
-                    open('modal');
-                }
+                abrirConta();
             }
 
             alvo.addEventListener('click', ativar);
 
-            alvo.addEventListener('keydown', (evento) => {
+            if (!alvo.matches('button')) alvo.addEventListener('keydown', (evento) => {
                 if (
                     evento.key === 'Enter' ||
                     evento.key === ' '
@@ -996,7 +1013,7 @@
             $('ac-logout').disabled = true;
 
             try {
-                const { error } = await sb.auth.signOut();
+                const { error } = await executar(sb.auth.signOut(), true);
 
                 if (error) {
                     throw error;
@@ -1032,9 +1049,18 @@
     // 19. MONITORAR ALTERAÇÕES DE SESSÃO
     // ==========================================
 
-    sb.auth.onAuthStateChange(
+    sb?.auth.onAuthStateChange(
         (_evento, novaSessao) => {
+            const anterior = session?.user?.id;
+            versaoSessao++;
+            sessaoCarregada = true;
+            erroSessao = '';
             session = novaSessao;
+            if (anterior !== session?.user?.id) {
+                voltarMinhaConta();
+                $('ac-detail-content').replaceChildren();
+                if (!session?.user) close();
+            }
 
             updateAccount();
         }
@@ -1045,12 +1071,7 @@
     // 20. INICIALIZAÇÃO
     // ==========================================
 
-    syncSession().catch((erro) => {
-        console.error(
-            'Armoire: erro ao restaurar sessão',
-            erro
-        );
-    });
+    window.armoireAuthReady = syncSession();
 
 
 // ==========================================
@@ -1060,12 +1081,9 @@
 document.addEventListener(
     'armoire:solicitar-login',
     () => {
-        if (session) {
-            return;
-        }
-
-        setMode('login');
-        open('modal');
+        session = null;
+        updateAccount();
+        exibirConta();
     }
     
 );

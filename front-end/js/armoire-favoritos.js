@@ -7,30 +7,35 @@
        Integração com Supabase Auth
     ========================================== */
 
-    const URL =
-        'https://wcuutgmwlipshdpqxbim.supabase.co';
-
-    const KEY =
-        'sb_publishable_sbX0g8RVoczkFCE4rRtrzQ_n7xvWHL1';
-
-    if (!window.supabase?.createClient) {
-        console.error('Armoire: Supabase indisponível.');
-        return;
-    }
-
-    const sb = window.supabase.createClient(URL, KEY, {
-        auth: {
-            persistSession: true,
-            autoRefreshToken: true,
-            detectSessionInUrl: true
-        }
-    });
+    if (window.armoireFavoritosIniciado) return;
+    const sb = window.armoireServico?.cliente();
+    if (!sb) return; // A conta exibe a indisponibilidade do SDK.
+    window.armoireFavoritosIniciado = true;
+    const executar = window.armoireServico.executar;
 
     let usuario = null;
     let favoritos = new Set();
     let processando = new Set();
 
     const catalogo = new Map();
+    let carregandoFavoritos = false;
+    let erroFavoritos = '';
+    let versao = 0;
+    function secaoAberta() {
+        return document.getElementById('ac-account-detail')?.hidden === false &&
+            document.getElementById('ac-detail-title')?.textContent === 'Meus favoritos';
+    }
+    function atualizarCatalogo() {
+        catalogo.clear();
+        if (typeof produtos === 'undefined') return;
+        Object.values(produtos).forEach(p => {
+            catalogo.set(String(p.id), {
+                id: String(p.id), nome: p.nome, imagem: p.imagens?.[0] || '',
+                preco: Number.isFinite(p.preco) ? p.preco.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) : '',
+                link: `produto.html?id=${encodeURIComponent(p.id)}`
+            });
+        });
+    }
 
     // ==========================================
     // IDENTIFICAR PRODUTOS
@@ -53,31 +58,6 @@
         } catch {
             return null;
         }
-    }
-
-    function registrarProduto(card, id) {
-        const link = card.matches('a')
-            ? card
-            : card.querySelector('a[href]');
-
-        const imagem = card.querySelector('img');
-
-        const nome =
-            card.querySelector('h4')?.textContent ||
-            card.querySelector('p')?.textContent ||
-            imagem?.alt ||
-            id;
-
-        const preco =
-            card.querySelector('.preco')?.textContent || '';
-
-        catalogo.set(id, {
-            id,
-            nome: nome.trim(),
-            imagem: imagem?.src || '',
-            preco: preco.trim(),
-            link: link?.href || `produto.html?id=${encodeURIComponent(id)}`
-        });
     }
 
     // ==========================================
@@ -121,7 +101,7 @@
 
         if (!id) return;
 
-        registrarProduto(card, id);
+        if (typeof produtos !== 'undefined' && window.armoireCatalogoEstado && !produtos[id]) return;
 
         if (card.dataset.favoritoPreparado === '1') {
             return;
@@ -134,7 +114,11 @@
         // O botão não pode ficar dentro de um link.
         // Criamos um contêiner para o link e o coração.
 
-        if (card.matches('a')) {
+        const unidade = card.closest('.catalogo-card');
+        if (unidade) {
+            unidade.classList.add('ac-favorito-card');
+            unidade.appendChild(botao);
+        } else if (card.matches('a')) {
             const container = document.createElement('div');
 
             container.className = 'ac-favorito-card';
@@ -150,6 +134,7 @@
     }
 
     function prepararCards() {
+        atualizarCatalogo();
         document.querySelectorAll(
             '.grade-produtos .produto, ' +
             '.mais-vendidos .produto-mini'
@@ -196,34 +181,29 @@
     // ==========================================
 
     async function carregarFavoritos() {
-        if (!usuario) {
-            favoritos.clear();
-            atualizarCoracoes();
-            return;
+        const atual = ++versao;
+        const idUsuario = usuario?.id;
+        carregandoFavoritos = !!idUsuario;
+        erroFavoritos = '';
+        if (secaoAberta()) mostrarFavoritos();
+        try {
+            if (!idUsuario) { favoritos.clear(); return; }
+            const { data, error } = await executar(sb.from('favoritos').select('produto_id').eq('usuario_id', idUsuario));
+            if (atual !== versao) return;
+            if (error) throw error;
+            if (!Array.isArray(data)) throw new Error('Resposta de favoritos inválida.');
+            favoritos = new Set(data.map(item => window.armoireServico.idProduto(item.produto_id)).filter(Boolean));
+        } catch (erro) {
+            if (atual !== versao) return;
+            erroFavoritos = 'Não foi possível carregar os favoritos. Tente novamente.';
+            console.error('Armoire: favoritos indisponíveis.', erro);
+        } finally {
+            if (atual === versao) {
+                carregandoFavoritos = false;
+                atualizarCoracoes();
+                if (secaoAberta()) mostrarFavoritos();
+            }
         }
-
-        const idUsuario = usuario.id;
-
-        const { data, error } = await sb
-            .from('favoritos')
-            .select('produto_id')
-            .eq('usuario_id', idUsuario);
-
-        if (error) {
-            console.error(
-                'Erro ao carregar favoritos:',
-                error
-            );
-            return;
-        }
-
-        if (usuario?.id !== idUsuario) return;
-
-        favoritos = new Set(
-            (data || []).map(item => item.produto_id)
-        );
-
-        atualizarCoracoes();
     }
 
     // ==========================================
@@ -233,50 +213,53 @@
     async function alternarFavorito(id) {
         if (processando.has(id)) return;
 
-        const { data, error: authError } =
-            await sb.auth.getUser();
-
-        if (authError || !data.user) {
-            solicitarLogin();
-            return;
-        }
-
-        usuario = data.user;
-
         processando.add(id);
         atualizarCoracoes();
-
+        const atual = versao;
+        let idUsuario;
         try {
+            const { data, error: authError } = await executar(sb.auth.getUser());
+            if (atual !== versao) return;
+            if (authError && authError.name !== 'AuthSessionMissingError') throw authError;
+            if (authError || !data?.user) { solicitarLogin(); return; }
+            if (usuario?.id !== data.user.id || erroFavoritos || carregandoFavoritos) {
+                usuario = data.user;
+                await carregarFavoritos();
+                if (erroFavoritos) throw new Error(erroFavoritos);
+            }
+            idUsuario = usuario.id;
             const jaFavorito = favoritos.has(id);
 
             if (jaFavorito) {
-                const { error } = await sb
+                const { error } = await executar(sb
                     .from('favoritos')
                     .delete()
-                    .eq('usuario_id', usuario.id)
-                    .eq('produto_id', id);
+                    .eq('usuario_id', idUsuario)
+                    .eq('produto_id', id), true);
 
                 if (error) throw error;
 
+                if (usuario?.id !== idUsuario) return;
                 favoritos.delete(id);
 
                 notificar('Produto removido dos favoritos.');
 
             } else {
-                const { error } = await sb
+                const { error } = await executar(sb
                     .from('favoritos')
                     .upsert(
                         {
-                            usuario_id: usuario.id,
+                            usuario_id: idUsuario,
                             produto_id: id
                         },
                         {
                             onConflict: 'usuario_id,produto_id'
                         }
-                    );
+                    ), true);
 
                 if (error) throw error;
 
+                if (usuario?.id !== idUsuario) return;
                 favoritos.add(id);
 
                 notificar('Produto adicionado aos favoritos!');
@@ -354,6 +337,13 @@
         if (!conteudo) return;
 
         conteudo.replaceChildren();
+        if (carregandoFavoritos || erroFavoritos) {
+            const aviso = document.createElement('p');
+            aviso.className = 'ac-detail-description';
+            aviso.textContent = carregandoFavoritos ? 'Carregando favoritos...' : erroFavoritos;
+            conteudo.appendChild(aviso);
+            return;
+        }
 
         if (!usuario) {
             const aviso = document.createElement('p');
@@ -403,7 +393,7 @@
             nome.href = produto?.link ||
                 `produto.html?id=${encodeURIComponent(id)}`;
 
-            nome.textContent = produto?.nome || id;
+            nome.textContent = produto?.nome || `Produto indisponível (${id})`;
 
             informacoes.appendChild(nome);
 
@@ -438,7 +428,13 @@
     // ==========================================
 
     sb.auth.onAuthStateChange((_evento, sessao) => {
+        if (usuario && usuario.id === sessao?.user?.id) return;
+        versao++;
+        favoritos.clear();
+        erroFavoritos = '';
+        carregandoFavoritos = false;
         usuario = sessao?.user || null;
+        if (secaoAberta()) mostrarFavoritos();
 
         if (!usuario) {
             favoritos.clear();
@@ -456,12 +452,20 @@
     // INICIALIZAÇÃO
     // ==========================================
 
+    document.addEventListener('armoire:cards-atualizados', prepararCards);
+    document.addEventListener('armoire:catalogo-atualizado', () => {
+        prepararCards();
+        if (secaoAberta()) mostrarFavoritos();
+    });
+
     async function iniciar() {
         prepararCards();
 
-        const { data } = await sb.auth.getUser();
-
-        usuario = data?.user || null;
+        const atual = versao;
+        const { data, error } = await executar(sb.auth.getUser());
+        if (atual !== versao) return;
+        if (error && error.name !== 'AuthSessionMissingError') throw error;
+        usuario = error ? null : data?.user || null;
 
         await carregarFavoritos();
 
@@ -469,14 +473,7 @@
         if (window.armoireCatalogoReady) {
             await window.armoireCatalogoReady;
 
-            document.querySelectorAll(
-                '.grade-produtos .produto, ' +
-                '.mais-vendidos .produto-mini'
-            ).forEach((card) => {
-                const id = obterId(card);
-
-                if (id) registrarProduto(card, id);
-            });
+            prepararCards();
         }
     }
 
@@ -488,11 +485,13 @@
         if (botao) {
             // O painel da conta atualiza primeiro
             // sua própria seção.
-            setTimeout(mostrarFavoritos, 0);
+            setTimeout(() => carregarFavoritos(), 0);
         }
     });
 
     iniciar().catch((erro) => {
+        erroFavoritos = 'Não foi possível verificar sua conta ou carregar os favoritos.';
+        if (secaoAberta()) mostrarFavoritos();
         console.error(
             'Armoire: falha ao iniciar favoritos:',
             erro

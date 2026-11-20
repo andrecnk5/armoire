@@ -15,6 +15,10 @@ document.addEventListener("DOMContentLoaded", () => {
         abrir.setAttribute("aria-expanded", "true");
 
         document.body.classList.add("menu-catalogo-aberto");
+        window.armoireDialogos?.abrir(menu, {
+            nome: "Menu principal", fechar: fecharMenu, inicial: fechar,
+            origem: abrir, externos: [overlay]
+        });
         fechar.focus();
     }
 
@@ -27,6 +31,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         menu.inert = true;
         document.body.classList.remove("menu-catalogo-aberto");
+        window.armoireDialogos?.fechar(menu);
         abrir.focus();
     }
 

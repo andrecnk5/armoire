@@ -22,6 +22,7 @@
     >
 
     <title>MY ARMOIRE | Armoire Central</title>
+    <link rel="icon" type="image/png" href="images/logoinv.png">
 
 
     <!-- ==========================================
@@ -64,6 +65,8 @@
         href="./css/my-armoire.css"
     >
 
+    <link rel="stylesheet" href="css/armoire-auth-ui.css">
+    <link rel="stylesheet" href="css/acessibilidade.css">
 </head>
 
 <body>
@@ -101,6 +104,9 @@
 
         </a>
 
+        <button type="button" class="botao-conta" aria-haspopup="dialog" aria-label="Abrir minha conta">
+            <i class="fa-regular fa-user" aria-hidden="true"></i>
+        </button>
     </header>
 
 
@@ -486,6 +492,9 @@
 
     <!-- 1. BIBLIOTECA SUPABASE -->
 
+    <script src="js/acessibilidade.js"></script>
+    <script src="js/armoire-client.js"></script>
+
     <script
         src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"
     ></script>
@@ -500,7 +509,12 @@
 
 
 
-    <!-- 3. SISTEMA DE CARRINHO -->
+    <!-- 3. CATÁLOGO PARA VALIDAR PRODUTOS E ESTOQUE DO CARRINHO -->
+
+    <script src="./js/produtos-data.js"></script>
+    <script src="./js/armoire-supabase.js"></script>
+
+    <!-- SISTEMA DE CARRINHO -->
 
     <script
         src="./js/carrinho.js"
@@ -516,14 +530,10 @@
 
 
 
-    <!-- ==========================================
-         PRÓXIMA ETAPA
-
-         A integração do botão ma-save-look
-         com o Supabase será adicionada
-         após a análise dos arquivos JS
-         e da autenticação existente.
-    ========================================== -->
+    <script src="js/armoire-auth-ui.js"></script>
+    <script src="js/armoire-favoritos.js"></script>
+    <script src="js/armoire-enderecos.js"></script>
+    <script src="js/armoire-menu-extra.js"></script>
 
 </body>
 

@@ -5,6 +5,8 @@
    ========================================== */
 
 let carrinho = [];
+let carrinhoPronto = false;
+let catalogoConfirmado = true;
 
 try {
   const dados = JSON.parse(localStorage.getItem("carrinho") || "[]");
@@ -352,48 +354,111 @@ function salvarCarrinho() {
   );
 }
 
+function normalizarIdCarrinho(id) {
+  if (typeof id !== "string" && typeof id !== "number") return null;
+  if (typeof id === "number" && !Number.isFinite(id)) return null;
+  const valor = String(id).trim();
+  return valor && !["undefined", "null"].includes(valor) ? valor : null;
+}
+
+function buscarProdutoCarrinho(idProduto) {
+  const id = normalizarIdCarrinho(idProduto);
+  if (!id || typeof produtos === "undefined" || !produtos) return null;
+
+  if (!Array.isArray(produtos) &&
+      Object.prototype.hasOwnProperty.call(produtos, id)) {
+    return produtos[id];
+  }
+
+  return Object.values(produtos).find(p =>
+    p && normalizarIdCarrinho(p.source_id ?? p.id) === id
+  ) || null;
+}
+
 function obterProdutoCarrinho(item) {
-  let produtoLocal = null;
-
-  if (typeof produtos !== "undefined" && produtos) {
-    if (Array.isArray(produtos)) {
-      produtoLocal = produtos.find(
-        p => String(p.id || p.source_id) === String(item.id)
-      );
-    } else {
-      produtoLocal =
-        produtos[item.id] ||
-        Object.values(produtos).find(
-          p => String(p.id || p.source_id) === String(item.id)
-        );
-    }
-  }
-
-  if (produtoLocal) {
+  const produto = buscarProdutoCarrinho(item.id);
+  if (!produto) {
+    // Peças removidas/inativas permanecem visíveis, sem permitir nova compra.
     return {
       id: String(item.id),
-      nome: produtoLocal.nome || produtoLocal.name || "",
-      preco: Number(produtoLocal.preco ?? produtoLocal.price ?? 0),
-      categoria: produtoLocal.categoria || produtoLocal.category || "",
-      imagem:
-        produtoLocal.imagens?.[0] ||
-        produtoLocal.images?.[0] ||
-        produtoLocal.image_url ||
-        ""
+      nome: item.produto?.nome || "Produto a confirmar",
+      preco: null,
+      categoria: item.produto?.categoria || "",
+      imagem: item.produto?.imagem || ""
     };
   }
 
-  if (item.produto) {
-    return {
-      id: String(item.id),
-      nome: item.produto.nome || "Produto",
-      preco: Number(item.produto.preco || 0),
-      categoria: item.produto.categoria || "",
-      imagem: item.produto.imagem || ""
-    };
-  }
+  return {
+    id: String(item.id),
+    nome: produto.nome || produto.name || "Produto",
+    preco: Number(produto.preco ?? produto.price ?? 0),
+    categoria: produto.categoria || produto.category || "",
+    imagem: produto.imagens?.[0] || produto.images?.[0] ||
+      produto.image_url || item.produto?.imagem || ""
+  };
+}
 
-  return null;
+function obterTamanhoCarrinho(produto, tamanho) {
+  if (!produto) return null;
+  const tamanhos = Array.isArray(produto.tamanhos)
+    ? produto.tamanhos.map(String) : [];
+  const escolhido = tamanho == null ? "" : String(tamanho).trim();
+  if (!escolhido && tamanhos.length === 1) return tamanhos[0];
+  return tamanhos.includes(escolhido) ? escolhido : null;
+}
+
+function obterEstoqueCarrinho(produto) {
+  if (!produto) return null;
+  const valor = produto.estoque ?? produto.stock;
+  if (!["number", "string"].includes(typeof valor) ||
+      (typeof valor === "string" && !valor.trim())) return null;
+  const estoque = Number(valor);
+  return Number.isSafeInteger(estoque) && estoque >= 0 ? estoque : null;
+}
+
+function quantidadeProdutoCarrinho(id) {
+  // O catálogo tem estoque por produto, compartilhado entre seus tamanhos.
+  return carrinho.reduce((total, item) =>
+    item.id === id ? total + Number(item.quantidade) : total, 0
+  );
+}
+
+function validarEstoqueCarrinho(idProduto, quantidade) {
+  const id = normalizarIdCarrinho(idProduto);
+  const produto = buscarProdutoCarrinho(id);
+  const qtd = Number(quantidade);
+  if (!produto) return "Produto não encontrado no catálogo.";
+  if (!Number.isSafeInteger(qtd) || qtd <= 0) return "Quantidade inválida.";
+
+  const total = quantidadeProdutoCarrinho(id) + qtd;
+  if (!Number.isSafeInteger(total)) return "Quantidade inválida.";
+  const estoque = obterEstoqueCarrinho(produto);
+  if (estoque === 0) return "Produto sem estoque.";
+  if (estoque !== null && total > estoque) {
+    return `Estoque disponível: ${estoque}. Você já tem ${quantidadeProdutoCarrinho(id)} unidade(s) deste produto no carrinho.`;
+  }
+  return "";
+}
+
+function sanearCarrinho() {
+  let removidos = 0;
+  const anterior = JSON.stringify(carrinho);
+  carrinho = carrinho.filter(item => {
+    const valido = item && normalizarIdCarrinho(item.id) &&
+      (buscarProdutoCarrinho(item.id) || !catalogoConfirmado ||
+        Object.prototype.hasOwnProperty.call(window.armoireCatalogoLocal || {}, normalizarIdCarrinho(item.id)) || item.produto) &&
+      Number.isSafeInteger(Number(item.quantidade)) && Number(item.quantidade) > 0;
+    if (!valido) removidos++;
+    return valido;
+  }).map(item => ({
+    ...item,
+    id: normalizarIdCarrinho(item.id),
+    quantidade: Number(item.quantidade),
+    tamanho: String(item.tamanho || obterTamanhoCarrinho(buscarProdutoCarrinho(item.id), null) || "Único")
+  }));
+
+  if (JSON.stringify(carrinho) !== anterior) salvarCarrinho();
+  return removidos;
 }
 
 /* CONTADOR */
@@ -435,13 +500,20 @@ function abrirMenuCarrinho() {
   if (!painelCarrinho) return;
 
   painelCarrinho.classList.add("ativo");
+  abrirCarrinho?.setAttribute("aria-expanded", "true");
   overlayCarrinho?.classList.add("ativo");
   atualizarCarrinho();
+  window.armoireDialogos?.abrir(painelCarrinho, {
+    nome: "Meu carrinho", fechar: fecharMenuCarrinho,
+    inicial: fecharCarrinho, externos: [overlayCarrinho]
+  });
 }
 
 function fecharMenuCarrinho() {
   painelCarrinho?.classList.remove("ativo");
+  abrirCarrinho?.setAttribute("aria-expanded", "false");
   overlayCarrinho?.classList.remove("ativo");
+  window.armoireDialogos?.fechar(painelCarrinho);
 }
 
 /* ADICIONAR PRODUTO */
@@ -449,15 +521,23 @@ function fecharMenuCarrinho() {
 function adicionarCarrinho(
   idProduto,
   quantidade = 1,
-  tamanho = "Único",
+  tamanho = null,
   dadosProduto = null,
   atualizarInterface = true
 ) {
-  const id = String(idProduto);
-  const tamanhoNormalizado = String(tamanho || "Único");
+  if (!carrinhoPronto) {
+    if (atualizarInterface) mostrarToast("Aguarde o carregamento do catálogo.");
+    return false;
+  }
+  const id = normalizarIdCarrinho(idProduto);
+  const produto = buscarProdutoCarrinho(id);
+  const tamanhoNormalizado = produto && obterTamanhoCarrinho(produto, tamanho);
   const qtd = Number(quantidade);
+  const erro = validarEstoqueCarrinho(id, qtd) ||
+    (!tamanhoNormalizado ? "Escolha um tamanho disponível para o produto." : "");
 
-  if (!id || !Number.isInteger(qtd) || qtd <= 0) {
+  if (erro) {
+    if (atualizarInterface) mostrarToast(erro);
     return false;
   }
 
@@ -484,12 +564,13 @@ function adicionarCarrinho(
       tamanho: tamanhoNormalizado
     };
 
-    if (dadosProduto) {
+    const dados = dadosProduto || obterProdutoCarrinho({ id });
+    if (dados) {
       novoItem.produto = {
-        nome: dadosProduto.nome || "Produto",
-        preco: Number(dadosProduto.preco || 0),
-        imagem: dadosProduto.imagem || "",
-        categoria: dadosProduto.categoria || ""
+        nome: dados.nome || "Produto",
+        preco: Number(dados.preco),
+        imagem: dados.imagem || "",
+        categoria: dados.categoria || ""
       };
     }
 
@@ -546,11 +627,7 @@ function aumentarQuantidade(id, tamanho = null) {
   const item = encontrarItem(id, tamanho);
   if (!item) return;
 
-  item.quantidade = Number(item.quantidade || 0) + 1;
-
-  salvarCarrinho();
-  atualizarContador();
-  atualizarCarrinho();
+  adicionarCarrinho(item.id, 1, item.tamanho);
 }
 
 /* DIMINUIR QUANTIDADE */
@@ -576,6 +653,22 @@ function diminuirQuantidade(id, tamanho = null) {
 function atualizarCarrinho() {
   if (!listaCarrinho || !totalCarrinho) return;
 
+  // A atualização dos itens não deve perder o controle usado pelo teclado.
+  const foco = document.activeElement;
+  const itemFocado = foco?.closest(".item-carrinho");
+  const posicao = itemFocado && listaCarrinho.contains(itemFocado)
+    ? [...listaCarrinho.children].indexOf(itemFocado) : -1;
+  const acao = ["mais", "menos", "btn-remover"].find(classe => foco?.classList.contains(classe));
+  function restaurarFoco() {
+    if (posicao < 0 || !acao) return;
+    const cards = [...listaCarrinho.children];
+    const correspondente = cards.find(card =>
+      card.dataset.produtoId === itemFocado.dataset.produtoId &&
+      card.dataset.tamanho === itemFocado.dataset.tamanho
+    ) || cards[Math.min(posicao, cards.length - 1)];
+    (correspondente?.querySelector(`.${acao}`) || fecharCarrinho)?.focus({ preventScroll: true });
+  }
+
   listaCarrinho.replaceChildren();
 
   if (!carrinho.length) {
@@ -588,10 +681,12 @@ function atualizarCarrinho() {
     `;
 
     totalCarrinho.textContent = moedaCarrinho(0);
+    restaurarFoco();
     return;
   }
 
   let total = 0;
+  let totalConfirmado = true;
 
   carrinho.forEach(item => {
     const produto = obterProdutoCarrinho(item);
@@ -602,10 +697,13 @@ function atualizarCarrinho() {
     }
 
     const quantidade = Number(item.quantidade || 0);
-    total += produto.preco * quantidade;
+    if (Number.isFinite(produto.preco)) total += produto.preco * quantidade;
+    else totalConfirmado = false;
 
     const card = document.createElement("div");
     card.className = "item-carrinho";
+    card.dataset.produtoId = item.id;
+    card.dataset.tamanho = item.tamanho || "Único";
 
     const imagemContainer = document.createElement("div");
     imagemContainer.className = "imagem-item";
@@ -632,7 +730,8 @@ function atualizarCarrinho() {
 
     const preco = document.createElement("p");
     preco.className = "preco";
-    preco.textContent = moedaCarrinho(produto.preco);
+    preco.textContent = Number.isFinite(produto.preco)
+      ? moedaCarrinho(produto.preco) : "Preço a confirmar";
 
     const acoes = document.createElement("div");
     acoes.className = "acoes-item";
@@ -699,6 +798,27 @@ function atualizarCarrinho() {
 
     acoes.append(controle, remover);
 
+    const produtoCatalogo = buscarProdutoCarrinho(item.id);
+    const estoque = obterEstoqueCarrinho(produtoCatalogo);
+    const avisos = [];
+    if (estoque !== null && quantidadeProdutoCarrinho(item.id) > estoque) {
+      avisos.push(`Estoque atual: ${estoque}. A quantidade salva foi preservada; reduza ou remova antes de continuar.`);
+    }
+    if (!produtoCatalogo) {
+      avisos.push(catalogoConfirmado
+        ? "Esta peça não está disponível no catálogo atual. Ela foi preservada; remova-a para continuar."
+        : "Não foi possível confirmar esta peça no catálogo. Ela foi preservada; tente novamente quando a conexão estiver disponível.");
+    } else if (!obterTamanhoCarrinho(produtoCatalogo, item.tamanho)) {
+      avisos.push("Confira o tamanho desta peça e adicione novamente com um tamanho disponível.");
+    }
+    if (avisos.length) {
+      const aviso = document.createElement("p");
+      aviso.className = "tamanho-item";
+      aviso.setAttribute("role", "status");
+      aviso.textContent = avisos.join(" ");
+      dados.appendChild(aviso);
+    }
+
     dados.append(
       nome,
       tamanho,
@@ -711,7 +831,8 @@ function atualizarCarrinho() {
     listaCarrinho.appendChild(card);
   });
 
-  totalCarrinho.textContent = moedaCarrinho(total);
+  totalCarrinho.textContent = totalConfirmado ? moedaCarrinho(total) : "A confirmar";
+  restaurarFoco();
 }
 
 /* LIMPAR CARRINHO */
@@ -729,28 +850,21 @@ function limparCarrinho() {
 document.addEventListener("armoire:adicionar-look", evento => {
   const itens = evento.detail?.itens;
 
-  if (!Array.isArray(itens) || !itens.length) return;
-
-  const validos = itens.every(item =>
-    item.produto_id != null &&
-    String(item.produto_id).trim() !== "" &&
-    String(item.tamanho || "").trim() !== "" &&
-    Number.isInteger(Number(item.quantidade)) &&
-    Number(item.quantidade) > 0 &&
-    Number.isFinite(Number(item.preco)) &&
-    Number(item.preco) >= 0
-  );
-
-  if (!validos) {
-    console.error("MY ARMOIRE: dados inválidos:", itens);
-    return;
-  }
-
   const backup = JSON.stringify(carrinho);
 
   try {
+    if (!Array.isArray(itens) || !itens.length) {
+      throw new Error("Nenhuma peça válida foi recebida.");
+    }
+    const validos = itens.every(item =>
+      item && normalizarIdCarrinho(item.produto_id) &&
+      String(item.tamanho || "").trim() !== "" &&
+      Number.isSafeInteger(Number(item.quantidade)) && Number(item.quantidade) > 0 &&
+      Number.isFinite(Number(item.preco)) && Number(item.preco) >= 0
+    );
+    if (!validos) throw new Error("Uma ou mais peças têm dados inválidos.");
     itens.forEach(item => {
-      adicionarCarrinho(
+      const adicionado = adicionarCarrinho(
         item.produto_id,
         item.quantidade,
         item.tamanho,
@@ -762,6 +876,9 @@ document.addEventListener("armoire:adicionar-look", evento => {
         },
         false
       );
+      if (!adicionado) {
+        throw new Error(`Não foi possível adicionar ${item.nome || "a peça"}. Confira o catálogo, tamanho e estoque.`);
+      }
     });
 
     salvarCarrinho();
@@ -828,36 +945,30 @@ document.querySelector(".btn-finalizar")
       return;
     }
 
-    mostrarToast("Checkout disponível em breve!");
+    mostrarToast("Demonstração: checkout indisponível. Nenhum pagamento ou pedido é realizado.");
   });
 
-/* BOTÃO COMPRAR — PÁGINA DE PRODUTO */
+/* BOTÕES COMPRAR — OUTRAS PÁGINAS
+   #btnComprar pertence exclusivamente a produto.js.
+*/
 
-const botaoComprar = document.querySelector(".comprar");
+function instalarBotoesComprar() {
+  const botaoComprar = document.querySelector(".comprar:not(#btnComprar)");
+  if (botaoComprar && typeof produto !== "undefined") {
+    botaoComprar.addEventListener("click", () => {
+      const quantidade = parseInt(document.getElementById("qtd")?.value) || 1;
+      adicionarCarrinho(produto.id, quantidade, botaoComprar.dataset.tamanho);
+    });
+  }
 
-if (
-  botaoComprar &&
-  typeof produto !== "undefined"
-) {
-  botaoComprar.addEventListener("click", () => {
-    const quantidade =
-      parseInt(document.getElementById("qtd")?.value) || 1;
-
-    adicionarCarrinho(produto.id, quantidade);
-  });
-}
-
-/* BOTÕES COMPRAR — CATÁLOGO */
-
-document.querySelectorAll(".btn-comprar")
-  .forEach(botao => {
+  document.querySelectorAll(".btn-comprar:not(#btnComprar)").forEach(botao => {
     botao.addEventListener("click", evento => {
       evento.preventDefault();
       evento.stopPropagation();
-
-      adicionarCarrinho(botao.dataset.id);
+      adicionarCarrinho(botao.dataset.id, 1, botao.dataset.tamanho);
     });
   });
+}
 
 /* FECHAR COM ESC */
 
@@ -869,10 +980,28 @@ document.addEventListener("keydown", evento => {
 
 /* INICIALIZAÇÃO */
 
-function iniciarCarrinho() {
-  instalarEstilosCarrinho();
+function sincronizarCatalogoCarrinho() {
+  catalogoConfirmado = window.armoireCatalogoEstado?.fonte === "remoto";
+  if (!carrinhoPronto) return;
+  sanearCarrinho();
   atualizarContador();
   atualizarCarrinho();
+}
+
+document.addEventListener("armoire:catalogo-atualizado", sincronizarCatalogoCarrinho);
+
+async function iniciarCarrinho() {
+  instalarEstilosCarrinho();
+  instalarBotoesComprar();
+  // Aguarda o catálogo remoto antes de validar IDs salvos em outras páginas.
+  if (window.armoireCatalogoReady) {
+    catalogoConfirmado = await window.armoireCatalogoReady === true;
+  }
+  const removidos = sanearCarrinho();
+  carrinhoPronto = true;
+  atualizarContador();
+  atualizarCarrinho();
+  if (removidos) mostrarToast(`${removidos} item(ns) inválido(s) removido(s) do carrinho.`);
 }
 
 if (document.readyState === "loading") {
@@ -888,6 +1017,7 @@ if (document.readyState === "loading") {
 /* FUNÇÕES GLOBAIS */
 
 window.adicionarCarrinho = adicionarCarrinho;
+window.validarEstoqueCarrinho = validarEstoqueCarrinho;
 window.removerProduto = removerProduto;
 window.aumentarQuantidade = aumentarQuantidade;
 window.diminuirQuantidade = diminuirQuantidade;

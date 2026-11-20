@@ -2,9 +2,6 @@
 (() => {
   "use strict";
 
-  const URL = "https://wcuutgmwlipshdpqxbim.supabase.co";
-  const KEY = "sb_publishable_sbX0g8RVoczkFCE4rRtrzQ_n7xvWHL1";
-
   const $ = id => document.getElementById(id);
 
   const overlay = $("ma-cart-overlay");
@@ -15,17 +12,22 @@
   const confirmButton = $("ma-cart-confirm");
   const closeButton = $("ma-cart-close");
 
-  if (!window.supabase?.createClient ||
+  if (!window.armoireServico?.cliente() ||
       !overlay || !drawer || !itemsContainer ||
       !totalElement || !errorElement ||
       !confirmButton || !closeButton) {
+    document.addEventListener("armoire:abrir-look", () => {
+      if (errorElement) errorElement.textContent = "Serviço indisponível. Tente novamente mais tarde.";
+      const aviso = $("ma-status");
+      if (aviso) { aviso.hidden = false; aviso.textContent = "Serviço indisponível. Tente novamente mais tarde."; }
+      if (confirmButton) confirmButton.disabled = true;
+    });
     console.error("MY ARMOIRE CART: dependências ausentes.");
     return;
   }
 
-  const sb = window.armoireSupabase ||
-    window.supabase.createClient(URL, KEY);
-  window.armoireSupabase = sb;
+  const sb = window.armoireServico.cliente();
+  const executar = window.armoireServico.executar;
 
   let produtosSelecionados = [];
   let carregando = false;
@@ -194,6 +196,10 @@
       drawer.classList.add("ma-visible");
     });
 
+    window.armoireDialogos?.abrir(drawer, {
+      nome: "Comprar look", fechar, escape: false, inicial: closeButton,
+      origem: ultimoFoco, externos: [overlay]
+    });
     closeButton.focus();
   }
 
@@ -232,6 +238,7 @@
       }
     }, 450);
 
+    window.armoireDialogos?.fechar(drawer);
     if (ultimoFoco?.isConnected) ultimoFoco.focus();
   }
 
@@ -347,7 +354,7 @@
 
     const unicos = [...new Set(
       (Array.isArray(ids) ? ids : [])
-        .map(String)
+        .map(window.armoireServico.idProduto)
         .filter(Boolean)
     )];
 
@@ -375,19 +382,20 @@
     );
 
     try {
-      const { data, error } = await sb
+      const { data, error } = await executar(sb
         .from("products")
         .select(
           "source_id,name,price,sizes,images,image_url,is_active"
         )
         .in("source_id", unicos)
-        .eq("is_active", true);
+        .eq("is_active", true));
 
       // Uma seleção mais recente tem prioridade.
       if (minhaRequisicao !== requisicaoAtual) return;
 
       if (error) throw error;
 
+      if (!Array.isArray(data)) throw new Error("Resposta de produtos inválida.");
       const mapa = new Map(
         (data || []).map(produto => [
           String(produto.source_id),
@@ -397,7 +405,9 @@
 
       const encontrados = unicos.map(id => mapa.get(id));
 
-      if (encontrados.some(produto => !produto)) {
+      if (encontrados.some(produto => !produto || produto.is_active !== true ||
+          !window.armoireServico.idProduto(produto.source_id) || produto.price == null ||
+          produto.price === '' || !Number.isFinite(Number(produto.price)) || Number(produto.price) < 0)) {
         throw new Error(
           "Uma ou mais peças selecionadas não estão disponíveis."
         );

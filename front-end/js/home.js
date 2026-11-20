@@ -4,6 +4,8 @@
 ========================================================= */
 
 document.addEventListener("DOMContentLoaded", function () {
+    if (document.body.dataset.homeInicializada === "1") return;
+    document.body.dataset.homeInicializada = "1";
 
     const menuLateral =
         document.getElementById("menuLateral");
@@ -157,11 +159,10 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
     
-window.addEventListener("scroll", verificarScroll);
-
-verificarScroll();
-
 }
+
+    window.addEventListener("scroll", verificarScroll, { passive: true });
+    verificarScroll();
     /* =====================================================
        PARALLAX SUAVE DO HERO
     ===================================================== */
@@ -197,6 +198,8 @@ verificarScroll();
 
 
 
+    moverHero();
+
     /* =====================================================
        LINKS DO MENU
        FECHA O MENU AO CLICAR
@@ -229,55 +232,6 @@ verificarScroll();
 
 
 
-    /* =====================================================
-       NEWSLETTER — PREVENIR ENVIO TEMPORÁRIO
-    ===================================================== */
-
-    const newsletterForm =
-        document.querySelector(".newsletter-form");
-
-
-    if (newsletterForm) {
-
-        newsletterForm.addEventListener(
-            "submit",
-            function (evento) {
-
-                evento.preventDefault();
-
-                const botao =
-                    newsletterForm.querySelector("button");
-
-                if (!botao) return;
-
-
-                const textoOriginal =
-                    botao.querySelector("span");
-
-
-                if (textoOriginal) {
-
-                    const textoAnterior =
-                        textoOriginal.textContent;
-
-
-                    textoOriginal.textContent =
-                        "INSCRITO ✓";
-
-
-                    setTimeout(function () {
-
-                        textoOriginal.textContent =
-                            textoAnterior;
-
-                    }, 2500);
-
-                }
-
-            }
-        );
-
-    }
-
+    // Newsletter demonstrativa desabilitada no HTML; proteção de envio em demonstracao.js.
 
 });

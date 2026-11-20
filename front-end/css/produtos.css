@@ -3025,6 +3025,9 @@ RESPONSIVO DO CARRINHO
 
 .quick-shop-overlay.ativo{
 
+    /* Visibilidade imediata para receber foco durante o fade de abertura. */
+    transition: opacity .3s ease;
+
     opacity:1;
 
     visibility:visible;
@@ -3683,6 +3686,8 @@ body.quick-shop-aberto{
         height:38px;
 
     }
+
+}
 
 /* =========================================================
    ARMOIRE CENTRAL — NOVO CATÁLOGO
@@ -4592,8 +4597,7 @@ body.quick-shop-aberto{
 
     /* Fim dos estilos do catálogo para telas até 600px */
 }
-/* Fim dos estilos do catálogo para telas até 500px */
-}
+
 
 /* =========================================================
    ARMOIRE CENTRAL — MENU HAMBÚRGUER DO CATÁLOGO
@@ -5544,3 +5548,11 @@ header .icons .contador-carrinho {
 }
 
 
+
+/* Card dinâmico: link de detalhe e compra preservam a aparência existente. */
+.catalogo-card .produto > a {
+    display: block;
+    width: 100%;
+    color: inherit;
+    text-decoration: none;
+}
