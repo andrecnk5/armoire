@@ -324,12 +324,13 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   aumentarQuantidade?.addEventListener("click", () => {
-    const estoque = Number(produto.estoque) || 99;
-
-    if (quantidadeAtual < estoque) {
-      quantidadeAtual++;
-      atualizarQuantidade();
+    const erro = window.validarEstoqueCarrinho(produto.id, quantidadeAtual + 1);
+    if (erro) {
+      mostrarToast(erro);
+      return;
     }
+    quantidadeAtual++;
+    atualizarQuantidade();
   });
 
   atualizarQuantidade();
@@ -345,23 +346,21 @@ document.addEventListener("DOMContentLoaded", async () => {
       ".btn-tamanho.ativo"
     );
 
-    if (tamanhos.length > 1 && !tamanhoAtivo) {
+    if (tamanhos.length !== 1 && !tamanhoAtivo) {
       mostrarAvisoTamanho();
       return;
     }
 
     const tamanho = tamanhoAtivo
       ? tamanhoAtivo.textContent.trim()
-      : "Único";
+      : tamanhos[0];
 
     if (typeof window.adicionarCarrinho !== "function") {
       console.error("adicionarCarrinho() não foi encontrada.");
       return;
     }
 
-    btnComprar.classList.add("adicionando-carrinho");
-
-    window.adicionarCarrinho(
+    const adicionado = window.adicionarCarrinho(
       produto.id,
       quantidadeAtual,
       tamanho,
@@ -372,6 +371,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         categoria: produto.categoria || ""
       }
     );
+
+    if (!adicionado) return;
+    btnComprar.classList.add("adicionando-carrinho");
 
     localStorage.setItem(
       "ultimoTamanhoProduto",

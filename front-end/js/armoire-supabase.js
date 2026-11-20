@@ -110,12 +110,14 @@
       console.log(
         `Armoire: ${lista.length} produtos recebidos do Supabase.`
       );
+      return true;
 
     } catch (erro) {
       console.error(
         "Armoire: erro ao carregar catálogo:",
         erro
       );
+      return false;
     }
   }
 

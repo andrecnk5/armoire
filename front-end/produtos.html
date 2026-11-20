@@ -2263,6 +2263,10 @@ document.addEventListener(
 
 
 
+                if (listaTamanhos.length === 1) {
+                    selecionarTamanho(listaTamanhos[0], tamanhos.firstElementChild);
+                }
+
                 /* =====================================
                    ABRIR MODAL
                 ====================================== */
@@ -2338,14 +2342,12 @@ document.addEventListener(
                 if (!produtoAtual) return;
 
 
-                if (
-                    produtoAtual.estoque &&
-                    quantidadeAtual >=
-                    produtoAtual.estoque
-                ) {
-
+                const mensagemEstoque = window.validarEstoqueCarrinho(
+                    produtoAtual.id, quantidadeAtual + 1
+                );
+                if (mensagemEstoque) {
+                    mostrarToast(mensagemEstoque);
                     return;
-
                 }
 
 
@@ -2430,11 +2432,15 @@ document.addEventListener(
                     "function"
                 ) {
 
-                    adicionarCarrinho(
+                    const adicionado = adicionarCarrinho(
                         produtoAtual.id,
-                        quantidadeAtual
+                        quantidadeAtual,
+                        tamanhoAtual
                     );
+                    if (!adicionado) return;
 
+                } else {
+                    return;
                 }
 
 
