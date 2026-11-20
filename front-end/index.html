@@ -23,6 +23,7 @@
 
 <link rel="stylesheet" href="css/armoire-auth-ui.css">
 <link rel="stylesheet" href="css/acessibilidade.css">
+<link rel="stylesheet" href="css/demonstracao.css">
 </head>
 
 
@@ -67,7 +68,7 @@
 
     <div class="icons-home">
 
-        <i class="fa-solid fa-magnifying-glass"></i>
+        <i class="fa-solid fa-magnifying-glass" data-busca-demonstrativa role="img" aria-label="Busca demonstrativa indisponível" title="Busca — demonstração indisponível"></i>
 
         <button type="button" class="botao-conta" aria-haspopup="dialog" aria-label="Abrir minha conta"><i class="fa-regular fa-user" aria-hidden="true"></i></button>
 
@@ -138,11 +139,11 @@
             PRODUTOS
         </a>
 
-        <a href="#">
+        <a href="#" data-link-demonstrativo aria-disabled="true" tabindex="-1" title="Demonstração — conteúdo indisponível">
             QUEM SOMOS
         </a>
 
-        <a href="#">
+        <a href="#" data-link-demonstrativo aria-disabled="true" tabindex="-1" title="Demonstração — conteúdo indisponível">
             FALE CONOSCO
         </a>
 
@@ -262,7 +263,7 @@
 
     <div class="destaque-imagem">
 
-        <img
+        <img loading="lazy" decoding="async"
             src="images/bannerpd.png"
             alt="Coleção Armoire Central"
         >
@@ -293,7 +294,7 @@
         <a
             href="#"
             class="botao-colecao"
-        >
+            data-link-demonstrativo aria-disabled="true" tabindex="-1" title="Demonstração — conteúdo indisponível">
 
             <span>
                 CONHEÇA-NOS
@@ -335,7 +336,7 @@
             class="categoria-home"
         >
 
-            <img
+            <img loading="lazy" decoding="async"
                 src="images/categoria-polo.png"
                 alt="Camisetas e Polos"
             >
@@ -361,7 +362,7 @@
             class="categoria-home"
         >
 
-            <img
+            <img loading="lazy" decoding="async"
                 src="images/categoria-camisa.png"
                 alt="Camisas"
             >
@@ -387,7 +388,7 @@
             class="categoria-home"
         >
 
-            <img
+            <img loading="lazy" decoding="async"
                 src="images/categoria-calca.png"
                 alt="Calças e Bermudas"
             >
@@ -413,7 +414,7 @@
             class="categoria-home"
         >
 
-            <img
+            <img loading="lazy" decoding="async"
                 src="images/categoria-acessorios.png"
                 alt="Acessórios"
             >
@@ -536,16 +537,16 @@
         </p>
 
 
-        <form class="newsletter-form">
+        <form class="newsletter-form" aria-label="Newsletter demonstrativa">
 
             <label class="sr-only" for="newsletter-email-index-1">Seu e-mail para receber novidades</label>
-            <input id="newsletter-email-index-1" name="email" autocomplete="email"
+            <input disabled aria-describedby="newsletter-aviso-index" id="newsletter-email-index-1" name="email" autocomplete="email"
                 type="email"
                 placeholder="Seu melhor e-mail"
                 required
             >
 
-            <button type="submit">
+            <button type="submit" disabled aria-describedby="newsletter-aviso-index">
 
                 <span>
                     INSCREVER-SE
@@ -555,6 +556,7 @@
 
             </button>
 
+            <p class="aviso-demonstracao" id="newsletter-aviso-index">Demonstração: inscrições indisponíveis. Nenhum e-mail é enviado ou salvo.</p>
         </form>
 
     </div>
@@ -590,15 +592,15 @@
             ARMOIRE CENTRAL
         </h4>
 
-        <a href="#">
+        <a href="#" data-link-demonstrativo aria-disabled="true" tabindex="-1" title="Demonstração — conteúdo indisponível">
             Quem somos
         </a>
 
-        <a href="#">
+        <a href="#" data-link-demonstrativo aria-disabled="true" tabindex="-1" title="Demonstração — conteúdo indisponível">
             Nossa história
         </a>
 
-        <a href="#">
+        <a href="#" data-link-demonstrativo aria-disabled="true" tabindex="-1" title="Demonstração — conteúdo indisponível">
             Contato
         </a>
 
@@ -611,15 +613,15 @@
             ATENDIMENTO
         </h4>
 
-        <a href="#">
+        <a href="#" data-link-demonstrativo aria-disabled="true" tabindex="-1" title="Demonstração — conteúdo indisponível">
             Fale conosco
         </a>
 
-        <a href="#">
+        <a href="#" data-link-demonstrativo aria-disabled="true" tabindex="-1" title="Demonstração — conteúdo indisponível">
             Trocas e devoluções
         </a>
 
-        <a href="#">
+        <a href="#" data-link-demonstrativo aria-disabled="true" tabindex="-1" title="Demonstração — conteúdo indisponível">
             Política de privacidade
         </a>
 
@@ -632,11 +634,11 @@
             REDES SOCIAIS
         </h4>
 
-        <a href="#">
+        <a href="#" data-link-demonstrativo aria-disabled="true" tabindex="-1" title="Demonstração — conteúdo indisponível">
             Instagram
         </a>
 
-        <a href="#">
+        <a href="#" data-link-demonstrativo aria-disabled="true" tabindex="-1" title="Demonstração — conteúdo indisponível">
             TikTok
         </a>
 
@@ -650,6 +652,7 @@
     </div>
 
 
+<p class="aviso-demonstracao aviso-rodape">Demonstração: busca, páginas institucionais e redes sociais indisponíveis.</p>
 </footer>
 
 
@@ -742,6 +745,7 @@ document.addEventListener("DOMContentLoaded", function(){
 <script src="js/armoire-favoritos.js"></script>
 <script src="js/armoire-enderecos.js"></script>
 <script src="js/armoire-menu-extra.js"></script>
+<script src="js/demonstracao.js"></script>
 </body>
 
 </html>

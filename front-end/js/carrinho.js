@@ -945,7 +945,7 @@ document.querySelector(".btn-finalizar")
       return;
     }
 
-    mostrarToast("Checkout disponível em breve!");
+    mostrarToast("Demonstração: checkout indisponível. Nenhum pagamento ou pedido é realizado.");
   });
 
 /* BOTÕES COMPRAR — OUTRAS PÁGINAS

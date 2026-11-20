@@ -23,6 +23,7 @@
 
 <link rel="stylesheet" href="css/armoire-auth-ui.css">
 <link rel="stylesheet" href="css/acessibilidade.css">
+<link rel="stylesheet" href="css/demonstracao.css">
 </head>
 
 <body>
@@ -88,13 +89,8 @@
         </div>
 
 
-        <button
-            class="btn-finalizar"
-            type="button">
-
-            FINALIZAR COMPRA
-
-        </button>
+        <button class="btn-finalizar" type="button" disabled aria-describedby="checkout-aviso">CHECKOUT DEMONSTRATIVO</button>
+        <p class="aviso-demonstracao" id="checkout-aviso">Demonstração: pagamento e criação de pedidos indisponíveis.</p>
 
     </div>
 
@@ -130,7 +126,7 @@
 
     <div class="icons">
 
-        <i class="fa-solid fa-magnifying-glass"></i>
+        <i class="fa-solid fa-magnifying-glass" data-busca-demonstrativa role="img" aria-label="Busca demonstrativa indisponível" title="Busca — demonstração indisponível"></i>
 
         <button type="button" class="botao-conta" aria-haspopup="dialog" aria-label="Abrir minha conta"><i class="fa-regular fa-user" aria-hidden="true"></i></button>
 
@@ -176,8 +172,8 @@
     <nav class="menu-catalogo-links">
         <a href="index.html">INÍCIO</a>
         <a href="produtos.html">PRODUTOS</a>
-        <a href="#">QUEM SOMOS</a>
-        <a href="#">FALE CONOSCO</a>
+        <a href="#" data-link-demonstrativo aria-disabled="true" tabindex="-1" title="Demonstração — conteúdo indisponível">QUEM SOMOS</a>
+        <a href="#" data-link-demonstrativo aria-disabled="true" tabindex="-1" title="Demonstração — conteúdo indisponível">FALE CONOSCO</a>
     </nav>
 
     <div class="menu-catalogo-rodape">
@@ -944,17 +940,18 @@
     </div>
 
 
-    <form class="newsletter-form">
+    <form class="newsletter-form" aria-label="Newsletter demonstrativa">
 
         <label class="sr-only" for="newsletter-email-produtos-1">Seu e-mail para receber novidades</label>
-        <input id="newsletter-email-produtos-1" name="email" autocomplete="email"
+        <input disabled aria-describedby="newsletter-aviso-produtos" id="newsletter-email-produtos-1" name="email" autocomplete="email"
             type="email"
             placeholder="Digite seu melhor e-mail">
 
-        <button type="submit">
+        <button type="submit" disabled aria-describedby="newsletter-aviso-produtos">
             CADASTRAR
         </button>
 
+        <p class="aviso-demonstracao" id="newsletter-aviso-produtos">Demonstração: inscrições indisponíveis. Nenhum e-mail é enviado ou salvo.</p>
     </form>
 
 </section>
@@ -1062,6 +1059,7 @@
     </div>
 
 
+<p class="aviso-demonstracao aviso-rodape">Demonstração: busca, páginas institucionais e redes sociais indisponíveis.</p>
 </footer>
 
 
@@ -1957,6 +1955,7 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 </script>
 
+<script src="js/demonstracao.js"></script>
 </body>
 
 </html>

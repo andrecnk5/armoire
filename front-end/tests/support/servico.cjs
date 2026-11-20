@@ -48,8 +48,8 @@ function servico({ user = { id: 'u1', email: 'teste@example.invalid' }, tables =
   };
   return { sb, calls, tables, emit };
 }
-async function aplicacao(mock, { modules = [], builder = false, sdkUnavailable = false, beforeReady } = {}) {
-  const h = await pagina({ page: 'auth', serviceClient: mock.sb, sdkUnavailable,
+async function aplicacao(mock, { modules = [], builder = false, sdkUnavailable = false, beforeReady, remote } = {}) {
+  const h = await pagina({ page: 'auth', serviceClient: mock.sb, sdkUnavailable, remote,
     beforeReady(info) {
       const { context, document, add } = info;
       context.confirm = () => true;

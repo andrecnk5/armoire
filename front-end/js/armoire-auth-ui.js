@@ -211,7 +211,7 @@
                             aria-hidden="true"></i>
 
                         <span>
-                            Meus pedidos
+                            Meus pedidos (demonstração)
                         </span>
 
                         <i
@@ -287,7 +287,7 @@
                             aria-hidden="true"></i>
 
                         <span>
-                            Configurações
+                            Configurações (demonstração)
                         </span>
 
                         <i
@@ -838,8 +838,8 @@
 
     const secoesConta = {
         pedidos: {
-            titulo: 'Meus pedidos',
-            texto: 'Seu histórico de compras aparecerá aqui.'
+            titulo: 'Meus pedidos — demonstração',
+            texto: 'Área demonstrativa. Esta versão não realiza checkout nem cria ou consulta pedidos.'
         },
 
         favoritos: {
@@ -858,8 +858,8 @@
         },
 
         configuracoes: {
-            titulo: 'Configurações',
-            texto: 'Aqui você poderá gerenciar suas informações pessoais e preferências.'
+            titulo: 'Configurações — demonstração',
+            texto: 'Área demonstrativa. A edição de informações pessoais e preferências não está disponível.'
         }
     };
 

@@ -232,55 +232,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
 
-    /* =====================================================
-       NEWSLETTER — PREVENIR ENVIO TEMPORÁRIO
-    ===================================================== */
-
-    const newsletterForm =
-        document.querySelector(".newsletter-form");
-
-
-    if (newsletterForm) {
-
-        newsletterForm.addEventListener(
-            "submit",
-            function (evento) {
-
-                evento.preventDefault();
-
-                const botao =
-                    newsletterForm.querySelector("button");
-
-                if (!botao) return;
-
-
-                const textoOriginal =
-                    botao.querySelector("span");
-
-
-                if (textoOriginal) {
-
-                    const textoAnterior =
-                        textoOriginal.textContent;
-
-
-                    textoOriginal.textContent =
-                        "INSCRITO ✓";
-
-
-                    setTimeout(function () {
-
-                        textoOriginal.textContent =
-                            textoAnterior;
-
-                    }, 2500);
-
-                }
-
-            }
-        );
-
-    }
-
+    // Newsletter demonstrativa desabilitada no HTML; proteção de envio em demonstracao.js.
 
 });

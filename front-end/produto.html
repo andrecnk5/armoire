@@ -15,6 +15,7 @@
   <link rel="stylesheet" href="css/produto.css">
   <link rel="stylesheet" href="css/armoire-auth-ui.css">
   <link rel="stylesheet" href="css/acessibilidade.css">
+  <link rel="stylesheet" href="css/demonstracao.css">
 </head>
 
 <body>
@@ -33,7 +34,7 @@
     </div>
 
     <div class="icons">
-      <span class="icone-pesquisa" aria-hidden="true">
+      <span class="icone-pesquisa" data-busca-demonstrativa role="img" aria-label="Busca demonstrativa indisponível" title="Busca — demonstração indisponível">
         <i class="fa-solid fa-magnifying-glass"></i>
       </span>
 
@@ -71,8 +72,8 @@
     <nav class="menu-links" aria-label="Navegação principal">
       <a href="index.html">INÍCIO</a>
       <a href="produtos.html">PRODUTOS</a>
-      <a href="#">QUEM SOMOS</a>
-      <a href="#">FALE CONOSCO</a>
+      <a href="#" data-link-demonstrativo aria-disabled="true" tabindex="-1" title="Demonstração — conteúdo indisponível">QUEM SOMOS</a>
+      <a href="#" data-link-demonstrativo aria-disabled="true" tabindex="-1" title="Demonstração — conteúdo indisponível">FALE CONOSCO</a>
     </nav>
 
     <div class="menu-inferior">
@@ -246,13 +247,14 @@
         coleções exclusivas e novidades da Armoire Central.
       </p>
 
-      <form class="newsletter-form">
+      <form class="newsletter-form" aria-label="Newsletter demonstrativa">
         <label class="sr-only" for="newsletter-email-produto-1">Seu e-mail para receber novidades</label>
-        <input id="newsletter-email-produto-1" name="email" autocomplete="email" type="email" placeholder="Seu melhor e-mail" required>
-        <button type="submit">
+        <input disabled aria-describedby="newsletter-aviso-produto" id="newsletter-email-produto-1" name="email" autocomplete="email" type="email" placeholder="Seu melhor e-mail" required>
+        <button type="submit" disabled aria-describedby="newsletter-aviso-produto">
           INSCREVER-SE
           <i class="fa-solid fa-arrow-right"></i>
         </button>
+        <p class="aviso-demonstracao" id="newsletter-aviso-produto">Demonstração: inscrições indisponíveis. Nenhum e-mail é enviado ou salvo.</p>
       </form>
     </div>
   </section>
@@ -268,14 +270,14 @@
 
       <div class="footer-coluna">
         <h3>ATENDIMENTO</h3>
-        <a href="#">Fale Conosco</a>
-        <a href="#">Trocas e Devoluções</a>
-        <a href="#">Política de Privacidade</a>
+        <a href="#" data-link-demonstrativo aria-disabled="true" tabindex="-1" title="Demonstração — conteúdo indisponível">Fale Conosco</a>
+        <a href="#" data-link-demonstrativo aria-disabled="true" tabindex="-1" title="Demonstração — conteúdo indisponível">Trocas e Devoluções</a>
+        <a href="#" data-link-demonstrativo aria-disabled="true" tabindex="-1" title="Demonstração — conteúdo indisponível">Política de Privacidade</a>
       </div>
 
       <div class="footer-coluna">
         <h3>INSTITUCIONAL</h3>
-        <a href="#">Quem Somos</a>
+        <a href="#" data-link-demonstrativo aria-disabled="true" tabindex="-1" title="Demonstração — conteúdo indisponível">Quem Somos</a>
         <a href="produtos.html">Produtos</a>
         <a href="index.html">Início</a>
       </div>
@@ -283,13 +285,13 @@
       <div class="footer-coluna">
         <h3>SIGA-NOS</h3>
         <div class="redes-sociais">
-          <a href="#" aria-label="Instagram">
+          <a href="#" aria-label="Instagram" data-link-demonstrativo aria-disabled="true" tabindex="-1" title="Demonstração — conteúdo indisponível">
             <i class="fa-brands fa-instagram"></i>
           </a>
-          <a href="#" aria-label="Facebook">
+          <a href="#" aria-label="Facebook" data-link-demonstrativo aria-disabled="true" tabindex="-1" title="Demonstração — conteúdo indisponível">
             <i class="fa-brands fa-facebook-f"></i>
           </a>
-          <a href="#" aria-label="TikTok">
+          <a href="#" aria-label="TikTok" data-link-demonstrativo aria-disabled="true" tabindex="-1" title="Demonstração — conteúdo indisponível">
             <i class="fa-brands fa-tiktok"></i>
           </a>
         </div>
@@ -299,6 +301,7 @@
     <div class="footer-bottom">
       <p>© 2026 Armoire Central. Todos os direitos reservados.</p>
     </div>
+    <p class="aviso-demonstracao aviso-rodape">Demonstração: busca, páginas institucionais e redes sociais indisponíveis.</p>
   </footer>
 
   <!-- NOTIFICAÇÃO -->
@@ -338,10 +341,8 @@
         <span>TOTAL</span>
         <strong id="totalCarrinho">R$ 0,00</strong>
       </div>
-      <button class="btn-finalizar" type="button">
-        FINALIZAR COMPRA
-        <i class="fa-solid fa-arrow-right"></i>
-      </button>
+      <button class="btn-finalizar" type="button" disabled aria-describedby="checkout-aviso">CHECKOUT DEMONSTRATIVO <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></button>
+      <p class="aviso-demonstracao" id="checkout-aviso">Demonstração: pagamento e criação de pedidos indisponíveis.</p>
     </div>
   </aside>
 
@@ -359,5 +360,6 @@
   <script src="js/armoire-favoritos.js"></script>
   <script src="js/armoire-enderecos.js"></script>
   <script src="js/armoire-menu-extra.js"></script>
+  <script src="js/demonstracao.js"></script>
 </body>
 </html>

@@ -1,0 +1,20 @@
+/* Identificação dos recursos demonstrativos, preservando os componentes originais. */
+[data-link-demonstrativo], [data-busca-demonstrativa] {
+  opacity: .55;
+  cursor: not-allowed;
+}
+.newsletter-form { flex-wrap: wrap; }
+.newsletter-form input:disabled, .newsletter-form button:disabled,
+.btn-finalizar:disabled {
+  opacity: .6;
+  cursor: not-allowed;
+}
+.aviso-demonstracao {
+  flex-basis: 100%;
+  margin: 12px 0 0;
+  font-size: 11px;
+  line-height: 1.6;
+  letter-spacing: normal;
+  overflow-wrap: anywhere;
+}
+.aviso-rodape { margin: 0; padding: 14px 20px; text-align: center; }
