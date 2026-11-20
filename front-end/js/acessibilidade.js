@@ -62,6 +62,8 @@
     const [entrada] = pilha.splice(indice, 1);
     ajustarFundo();
     painel.inert = true;
+    // Uma sessão expirada pode fechar o painel abaixo de outro modal.
+    if (fundo.has(painel)) fundo.set(painel, true);
     painel.setAttribute('aria-hidden', 'true');
     if (eraTopo) {
       if (entrada.origem?.isConnected && !entrada.origem.closest('[inert], [hidden]')) entrada.origem.focus({ preventScroll: true });

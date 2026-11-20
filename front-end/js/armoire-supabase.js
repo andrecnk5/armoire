@@ -7,9 +7,8 @@
 (() => {
   "use strict";
 
-  // Substitua pelos dados públicos do seu projeto.
-  const PROJECT_URL = "https://wcuutgmwlipshdpqxbim.supabase.co";
-  const PUBLIC_KEY = "sb_publishable_sbX0g8RVoczkFCE4rRtrzQ_n7xvWHL1";
+  const PROJECT_URL = window.armoireServico.url;
+  const PUBLIC_KEY = window.armoireServico.chavePublica;
 
   // Remoto válido substitui todo o conjunto ativo. Falha mantém o snapshot local.
   // Preserva a referência de `produtos`, utilizada pelo detalhe e pelo carrinho.

@@ -142,7 +142,7 @@ class Elemento {
   querySelector(selector) { return this.querySelectorAll(selector)[0] || null; }
 }
 
-async function pagina({ page = 'cart', id = 'black-hat', saved = [], stock, sizes, remote, offline = false, slow = false, malformed = false, beforeReady, afterDispatch, fetchOverride, favorites = false, search, withoutAbort = false, authSession = null } = {}) {
+async function pagina({ page = 'cart', id = 'black-hat', saved = [], stock, sizes, remote, offline = false, slow = false, malformed = false, beforeReady, afterDispatch, fetchOverride, favorites = false, search, withoutAbort = false, authSession = null, serviceClient, sdkUnavailable = false } = {}) {
   const document = new Elemento('document');
   document.readyState = 'loading';
   document.head = new Elemento('head');
@@ -230,6 +230,7 @@ async function pagina({ page = 'cart', id = 'black-hat', saved = [], stock, size
   context.window = context;
   const run = file => vm.runInContext(read(file), context, { filename: file });
   run('js/acessibilidade.js');
+  run('js/armoire-client.js');
   run('js/produtos-data.js');
   const products = vm.runInContext('produtos', context);
   if (stock !== undefined) products[id].estoque = stock;
@@ -257,7 +258,7 @@ async function pagina({ page = 'cart', id = 'black-hat', saved = [], stock, size
     }
   }
   if (page === 'auth') {
-    context.supabase = { createClient: () => ({ auth: {
+    if (!sdkUnavailable) context.supabase = { createClient: () => serviceClient || ({ auth: {
       getSession: async () => ({ data: { session: authSession } }), onAuthStateChange() {}
     } }) };
     run('js/armoire-auth-ui.js');
