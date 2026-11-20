@@ -80,15 +80,15 @@ for (const query of ['', '?id=', '?id=nao-existe', '?id=toString', '?id=__proto_
 
 test('galeria alterna miniaturas e ignora referências que falharam', async () => {
   const h = await pagina({ page: 'produto', id: 'fleece-frente', offline: true });
-  const miniaturas = h.get('miniaturas').children;
+  const miniaturas = h.get('miniaturas').querySelectorAll('img');
   assert.equal(miniaturas.length, 3);
-  miniaturas[1].click();
+  miniaturas[1].parentNode.click();
   [...h.timers.values()].filter(t => t.ms === 180).at(-1).fn();
   assert.equal(h.get('imagemPrincipal').src, miniaturas[1].src);
   miniaturas[1].dispatchEvent({ type: 'error' });
   assert.equal(miniaturas[1].hidden, true);
   assert.equal(h.get('imagemPrincipal').src, miniaturas[0].src);
-  miniaturas[1].click();
+  miniaturas[1].parentNode.click();
   assert.equal(h.get('imagemPrincipal').src, miniaturas[0].src);
 });
 

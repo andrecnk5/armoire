@@ -23,6 +23,11 @@ document.addEventListener("DOMContentLoaded", () => {
     menu.setAttribute("aria-hidden", String(!aberto));
     overlay.setAttribute("aria-hidden", String(!aberto));
     abrir.setAttribute("aria-expanded", String(aberto));
+    if (aberto) window.armoireDialogos?.abrir(menu, {
+      nome: "Menu principal", fechar: () => alternarMenu(false), inicial: fechar,
+      origem: abrir, externos: [overlay]
+    });
+    else window.armoireDialogos?.fechar(menu);
   }
 
   abrir.addEventListener("click", () => alternarMenu(true));
@@ -169,7 +174,9 @@ document.addEventListener("DOMContentLoaded", async () => {
       imagemPrincipal.hidden = false;
       if (aviso) aviso.hidden = true;
       miniaturas.querySelectorAll("img").forEach(miniatura => {
-        miniatura.classList.toggle("ativa", miniatura.dataset.imagem === imagem);
+        const selecionada = miniatura.dataset.imagem === imagem;
+        miniatura.classList.toggle("ativa", selecionada);
+        miniatura.closest("button")?.setAttribute("aria-pressed", String(selecionada));
       });
       if (animar) {
         imagemPrincipal.classList.add("troca-imagem");
@@ -193,7 +200,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     function falhou(imagem) {
       falhas.add(imagem);
       miniaturas.querySelectorAll("img").forEach(miniatura => {
-        if (miniatura.dataset.imagem === imagem) miniatura.hidden = true;
+        if (miniatura.dataset.imagem === imagem) {
+          miniatura.hidden = true;
+          const botao = miniatura.closest("button");
+          if (botao) botao.hidden = true;
+        }
       });
       if (imagemPrincipal.getAttribute("src") === imagem) {
         const proxima = imagens.find(item => !falhas.has(item));
@@ -207,9 +218,15 @@ document.addEventListener("DOMContentLoaded", async () => {
       miniatura.dataset.imagem = imagem;
       miniatura.alt = `${produto.nome} ${index + 1}`;
       miniatura.addEventListener("error", () => falhou(imagem));
-      miniatura.addEventListener("click", () => exibir(imagem, true));
+      const botao = document.createElement("button");
+      botao.type = "button";
+      botao.className = "miniatura-botao";
+      botao.setAttribute("aria-label", `Ver imagem ${index + 1} de ${produto.nome}`);
+      botao.setAttribute("aria-pressed", "false");
+      botao.addEventListener("click", () => exibir(imagem, true));
       miniatura.src = imagem;
-      miniaturas.appendChild(miniatura);
+      botao.appendChild(miniatura);
+      miniaturas.appendChild(botao);
     });
     if (imagens.length) exibir(imagens[0]);
     else indisponivel();
@@ -232,6 +249,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       const botao = document.createElement("button");
       botao.type = "button";
       botao.className = "btn-cor";
+      botao.setAttribute("aria-pressed", String(index === 0));
       botao.setAttribute("aria-label", cor.nome);
       botao.style.setProperty(
         "--cor-produto",
@@ -245,6 +263,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       if (index === 0) {
         botao.classList.add("ativo");
+        botao.setAttribute("aria-pressed", "true");
         if (corSelecionada) {
           corSelecionada.textContent = cor.nome;
         }
@@ -253,9 +272,11 @@ document.addEventListener("DOMContentLoaded", async () => {
       botao.addEventListener("click", () => {
         coresProduto.querySelectorAll(".btn-cor").forEach(outro => {
           outro.classList.remove("ativo");
+          outro.setAttribute("aria-pressed", "false");
         });
 
         botao.classList.add("ativo");
+        botao.setAttribute("aria-pressed", "true");
 
         if (corSelecionada) {
           corSelecionada.textContent = cor.nome;
@@ -283,14 +304,19 @@ document.addEventListener("DOMContentLoaded", async () => {
       const botao = document.createElement("button");
       botao.type = "button";
       botao.className = "btn-tamanho";
+      botao.setAttribute("aria-pressed", "false");
       botao.textContent = tamanho;
 
       botao.addEventListener("click", () => {
         tamanhosProduto
           .querySelectorAll(".btn-tamanho")
-          .forEach(outro => outro.classList.remove("ativo"));
+          .forEach(outro => {
+            outro.classList.remove("ativo");
+            outro.setAttribute("aria-pressed", "false");
+          });
 
         botao.classList.add("ativo");
+        botao.setAttribute("aria-pressed", "true");
 
         if (tamanhoSelecionado) {
           tamanhoSelecionado.textContent = tamanho;
@@ -307,6 +333,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       const unico = tamanhosProduto.querySelector(".btn-tamanho");
 
       unico?.classList.add("ativo");
+      unico?.setAttribute("aria-pressed", "true");
 
       if (tamanhoSelecionado) {
         tamanhoSelecionado.textContent = "Único";

@@ -47,7 +47,45 @@ class Elemento {
   setAttribute(name, value) { this.attributes[name] = String(value); }
   getAttribute(name) { return this.attributes[name] ?? this[name] ?? null; }
   removeAttribute(name) { delete this.attributes[name]; delete this[name]; }
-  focus() {}
+  get tabIndex() {
+    if (this.attributes.tabindex != null) return Number(this.attributes.tabindex);
+    return ['button', 'input', 'select', 'textarea'].includes(this.tagName) ||
+      (this.tagName === 'a' && this.href) ? 0 : -1;
+  }
+  get isConnected() { let n = this; while (n.parent) n = n.parent; return n.tagName === 'document'; }
+  hasAttribute(name) { return Object.hasOwn(this.attributes, name); }
+  getClientRects() { return this.isConnected && !this.closest('[inert], [hidden]') ? [{}] : []; }
+  focus() {
+    if (this.closest('[inert], [hidden]')) return;
+    let doc = this; while (doc.parent) doc = doc.parent;
+    if (doc.tagName === 'document') {
+      doc.activeElement = this;
+      doc.dispatchEvent({ type: 'focusin', target: this });
+    }
+  }
+  reset() {}
+  insertAdjacentHTML(_, markup) {
+    const stack = [this];
+    const voids = new Set(['input', 'img', 'br', 'meta', 'link', 'hr']);
+    const clean = markup.replace(/<!--[\s\S]*?-->/g, '');
+    for (const token of clean.match(/<[^>]+>|[^<]+/g) || []) {
+      if (token.startsWith('</')) { stack.pop(); continue; }
+      if (token.startsWith('<')) {
+        const tag = token.match(/^<([\w-]+)/)?.[1];
+        if (!tag) continue;
+        const el = new Elemento(tag);
+        for (const match of token.slice(tag.length + 1, -1).matchAll(/([\w:-]+)(?:\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+)))?/g)) {
+          const name = match[1], value = match[2] ?? match[3] ?? match[4] ?? '';
+          el.setAttribute(name, value);
+          if (name === 'class') el.className = value;
+          else if (name.startsWith('data-')) el.dataset[name.slice(5).replace(/-([a-z])/g, (_, c) => c.toUpperCase())] = value;
+          else el[name] = ['hidden', 'inert', 'disabled', 'required'].includes(name) ? true : value;
+        }
+        stack.at(-1).append(el);
+        if (!voids.has(tag)) stack.push(el);
+      } else if (token.trim()) stack.at(-1).text = (stack.at(-1).text || '') + token.trim();
+    }
+  }
   contains(node) { return this === node || this.children.some(c => c.contains(node)); }
   addEventListener(type, fn) { (this.listeners[type] ||= []).push(fn); }
   removeEventListener(type, fn) { this.listeners[type] = (this.listeners[type] || []).filter(f => f !== fn); }
@@ -55,7 +93,11 @@ class Elemento {
     event.target ||= this;
     event.preventDefault ||= () => {};
     event.stopPropagation ||= () => {};
+    const originalPrevent = event.preventDefault;
+    event.preventDefault = () => { event.defaultPrevented = true; originalPrevent(); };
+    event.stopImmediatePropagation ||= () => { event.immediateStopped = true; };
     for (const fn of [...(this.listeners[event.type] || [])]) {
+      if (event.immediateStopped) break;
       const result = fn(event);
       if (result?.then) (this.pending ||= []).push(result);
     }
@@ -63,12 +105,13 @@ class Elemento {
   }
   click() { if (!this.disabled) this.dispatchEvent({ type: 'click' }); }
   matches(selector) {
+    if (selector.includes(',')) return selector.split(',').some(s => this.matches(s.trim()));
     const not = selector.match(/:not\(([^)]+)\)/);
     if (not && this.matches(not[1])) return false;
     selector = selector.replace(/:not\([^)]+\)/g, '');
     for (const match of selector.matchAll(/\[([\w-]+)(?:=["']?([^\]"']*)["']?)?\]/g)) {
       const name = match[1];
-      const value = name.startsWith('data-')
+      const value = ['inert', 'hidden', 'disabled'].includes(name) ? (this[name] ? '' : null) : name.startsWith('data-')
         ? this.dataset[name.slice(5).replace(/-([a-z])/g, (_, c) => c.toUpperCase())]
         : this[name] ?? this.attributes[name];
       if (value == null || (match[2] != null && String(value) !== match[2])) return false;
@@ -99,12 +142,13 @@ class Elemento {
   querySelector(selector) { return this.querySelectorAll(selector)[0] || null; }
 }
 
-async function pagina({ page = 'cart', id = 'black-hat', saved = [], stock, sizes, remote, offline = false, slow = false, malformed = false, beforeReady, afterDispatch, fetchOverride, favorites = false, search, withoutAbort = false } = {}) {
+async function pagina({ page = 'cart', id = 'black-hat', saved = [], stock, sizes, remote, offline = false, slow = false, malformed = false, beforeReady, afterDispatch, fetchOverride, favorites = false, search, withoutAbort = false, authSession = null } = {}) {
   const document = new Elemento('document');
   document.readyState = 'loading';
   document.head = new Elemento('head');
   document.body = new Elemento('body');
   document.append(document.head, document.body);
+  document.activeElement = document.body;
   document.createElement = tag => new Elemento(tag);
   document.getElementById = id => document.querySelector(`#${id}`);
   const add = (id, cls = '', tag = 'div') => {
@@ -116,6 +160,9 @@ async function pagina({ page = 'cart', id = 'black-hat', saved = [], stock, size
   };
   if (page !== 'my-armoire') {
     ['carrinho', 'overlayCarrinho', 'abrirCarrinho', 'fecharCarrinho', 'listaCarrinho', 'totalCarrinho'].forEach(id => add(id));
+    const panel = document.getElementById('carrinho'); panel.inert = true;
+    const closeCart = document.getElementById('fecharCarrinho'); closeCart.tagName = 'button';
+    panel.append(closeCart, document.getElementById('listaCarrinho'));
     add('contador', 'contador-carrinho');
     add('toastCarrinho').append(new Elemento('span'));
   }
@@ -128,6 +175,11 @@ async function pagina({ page = 'cart', id = 'black-hat', saved = [], stock, size
   if (page === 'quick') {
     ['quickShopOverlay', 'fecharQuickShop', 'quickShopImagem', 'quickShopMarca', 'quickShopNome', 'quickShopPreco', 'quickShopTamanhoSelecionado', 'quickShopTamanhoSecao', 'quickShopErro', 'quickShopQuantidade', 'quickShopMenos', 'quickShopMais', 'quickShopAdicionar', 'quickShopVerProduto'].forEach(id => add(id));
     add('quickShopTamanhos', 'quick-shop-tamanhos');
+    const quick = document.getElementById('quickShopOverlay'); quick.inert = true;
+    for (const id of ['fecharQuickShop', 'quickShopAdicionar', 'quickShopMenos', 'quickShopMais']) {
+      const node = document.getElementById(id); node.tagName = 'button'; quick.append(node);
+    }
+    quick.append(document.getElementById('quickShopTamanhos'));
   }
   if (page === 'my-armoire') {
     ['ma-cart-overlay', 'ma-cart-drawer', 'ma-cart-items', 'ma-cart-total', 'ma-cart-error', 'ma-cart-confirm', 'ma-cart-close'].forEach(id => add(id));
@@ -145,6 +197,10 @@ async function pagina({ page = 'cart', id = 'black-hat', saved = [], stock, size
     add('header', 'header-home'); add('topbar', 'top-bar');
     add('hero', 'hero-imagem').append(add('heroImg', '', 'img'));
   }
+  if (page === 'auth') {
+    const button = add('conta', 'botao-conta', 'button');
+    const icon = new Elemento('i'); icon.className = 'fa-user'; button.append(icon);
+  }
   const windowEvents = new Elemento('window');
   const timers = new Map();
   let timerId = 0;
@@ -154,6 +210,7 @@ async function pagina({ page = 'cart', id = 'black-hat', saved = [], stock, size
     document, URLSearchParams, URL, AbortController,
     IntersectionObserver: class { observe() {} unobserve() {} },
     scrollY: 0, innerHeight: 900,
+    getComputedStyle: el => ({ display: el.style.display || 'block', visibility: el.style.visibility || 'visible' }),
     addEventListener: (...args) => windowEvents.addEventListener(...args),
     console: { log() {}, warn() {}, error() {}, table() {}, info() {} },
     localStorage: { getItem: key => storage.get(key) ?? null, setItem: (key, value) => storage.set(key, value) },
@@ -172,6 +229,7 @@ async function pagina({ page = 'cart', id = 'black-hat', saved = [], stock, size
   });
   context.window = context;
   const run = file => vm.runInContext(read(file), context, { filename: file });
+  run('js/acessibilidade.js');
   run('js/produtos-data.js');
   const products = vm.runInContext('produtos', context);
   if (stock !== undefined) products[id].estoque = stock;
@@ -197,6 +255,12 @@ async function pagina({ page = 'cart', id = 'black-hat', saved = [], stock, size
       }) };
       run('js/armoire-favoritos.js');
     }
+  }
+  if (page === 'auth') {
+    context.supabase = { createClient: () => ({ auth: {
+      getSession: async () => ({ data: { session: authSession } }), onAuthStateChange() {}
+    } }) };
+    run('js/armoire-auth-ui.js');
   }
   if (page === 'home') run('js/home.js');
   if (page === 'produto') run('js/produto.js');

@@ -22,6 +22,7 @@
     >
 
 <link rel="stylesheet" href="css/armoire-auth-ui.css">
+<link rel="stylesheet" href="css/acessibilidade.css">
 </head>
 
 
@@ -68,9 +69,9 @@
 
         <i class="fa-solid fa-magnifying-glass"></i>
 
-        <i class="fa-regular fa-user"></i>
+        <button type="button" class="botao-conta" aria-haspopup="dialog" aria-label="Abrir minha conta"><i class="fa-regular fa-user" aria-hidden="true"></i></button>
 
-        <a href="produtos.html" class="icone-carrinho-home">
+        <a href="produtos.html" class="icone-carrinho-home" aria-label="Ver produtos e carrinho">
 
             <i class="fa-solid fa-bag-shopping"></i>
 
@@ -79,6 +80,9 @@
         <button
             class="botao-menu"
             id="abrirMenu"
+            type="button"
+            aria-expanded="false"
+            aria-controls="menuLateral"
             aria-label="Abrir menu"
         >
 
@@ -105,6 +109,7 @@
 <aside
     class="menu-lateral"
     id="menuLateral"
+    inert aria-hidden="true"
 >
 
     <div class="menu-topo">
@@ -533,7 +538,8 @@
 
         <form class="newsletter-form">
 
-            <input
+            <label class="sr-only" for="newsletter-email-index-1">Seu e-mail para receber novidades</label>
+            <input id="newsletter-email-index-1" name="email" autocomplete="email"
                 type="email"
                 placeholder="Seu melhor e-mail"
                 required
@@ -652,6 +658,8 @@
      JAVASCRIPT
 ================================================== -->
 
+<script src="js/acessibilidade.js"></script>
+
 <script>
 
 document.addEventListener("DOMContentLoaded", function(){
@@ -677,6 +685,11 @@ document.addEventListener("DOMContentLoaded", function(){
         menuOverlay.classList.add("ativo");
 
         document.body.classList.add("menu-aberto");
+        abrirMenu.setAttribute("aria-expanded", "true");
+        window.armoireDialogos?.abrir(menuLateral, {
+            nome: "Menu principal", fechar: fecharMenuLateral, inicial: fecharMenu,
+            origem: abrirMenu, externos: [menuOverlay]
+        });
 
     }
 
@@ -688,9 +701,13 @@ document.addEventListener("DOMContentLoaded", function(){
         menuOverlay.classList.remove("ativo");
 
         document.body.classList.remove("menu-aberto");
+        abrirMenu.setAttribute("aria-expanded", "false");
+        window.armoireDialogos?.fechar(menuLateral);
 
     }
 
+
+    menuLateral.querySelectorAll("a").forEach(link => link.addEventListener("click", fecharMenuLateral));
 
     abrirMenu.addEventListener(
         "click",

@@ -451,6 +451,8 @@
 
         document.body.classList.remove('ac-locked');
 
+        window.armoireDialogos?.fechar(modal);
+        window.armoireDialogos?.fechar(drawer);
         lastFocus = null;
 
         focoAnterior?.focus?.();
@@ -476,6 +478,10 @@
 
         requestAnimationFrame(() => {
             elemento.classList.add('open');
+            window.armoireDialogos?.abrir(elemento, {
+                fechar: close, origem: lastFocus, externos: [overlay],
+                inicial: tipo === 'drawer' ? drawer.querySelector('[data-ac-close]') : $('ac-email')
+            });
         });
 
         const foco =
@@ -939,7 +945,7 @@
 
             alvo.addEventListener('click', ativar);
 
-            alvo.addEventListener('keydown', (evento) => {
+            if (!alvo.matches('button')) alvo.addEventListener('keydown', (evento) => {
                 if (
                     evento.key === 'Enter' ||
                     evento.key === ' '

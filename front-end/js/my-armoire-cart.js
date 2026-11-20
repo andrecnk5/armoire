@@ -194,6 +194,10 @@
       drawer.classList.add("ma-visible");
     });
 
+    window.armoireDialogos?.abrir(drawer, {
+      nome: "Comprar look", fechar, escape: false, inicial: closeButton,
+      origem: ultimoFoco, externos: [overlay]
+    });
     closeButton.focus();
   }
 
@@ -232,6 +236,7 @@
       }
     }, 450);
 
+    window.armoireDialogos?.fechar(drawer);
     if (ultimoFoco?.isConnected) ultimoFoco.focus();
   }
 

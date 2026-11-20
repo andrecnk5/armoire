@@ -500,13 +500,20 @@ function abrirMenuCarrinho() {
   if (!painelCarrinho) return;
 
   painelCarrinho.classList.add("ativo");
+  abrirCarrinho?.setAttribute("aria-expanded", "true");
   overlayCarrinho?.classList.add("ativo");
   atualizarCarrinho();
+  window.armoireDialogos?.abrir(painelCarrinho, {
+    nome: "Meu carrinho", fechar: fecharMenuCarrinho,
+    inicial: fecharCarrinho, externos: [overlayCarrinho]
+  });
 }
 
 function fecharMenuCarrinho() {
   painelCarrinho?.classList.remove("ativo");
+  abrirCarrinho?.setAttribute("aria-expanded", "false");
   overlayCarrinho?.classList.remove("ativo");
+  window.armoireDialogos?.fechar(painelCarrinho);
 }
 
 /* ADICIONAR PRODUTO */
@@ -646,6 +653,22 @@ function diminuirQuantidade(id, tamanho = null) {
 function atualizarCarrinho() {
   if (!listaCarrinho || !totalCarrinho) return;
 
+  // A atualização dos itens não deve perder o controle usado pelo teclado.
+  const foco = document.activeElement;
+  const itemFocado = foco?.closest(".item-carrinho");
+  const posicao = itemFocado && listaCarrinho.contains(itemFocado)
+    ? [...listaCarrinho.children].indexOf(itemFocado) : -1;
+  const acao = ["mais", "menos", "btn-remover"].find(classe => foco?.classList.contains(classe));
+  function restaurarFoco() {
+    if (posicao < 0 || !acao) return;
+    const cards = [...listaCarrinho.children];
+    const correspondente = cards.find(card =>
+      card.dataset.produtoId === itemFocado.dataset.produtoId &&
+      card.dataset.tamanho === itemFocado.dataset.tamanho
+    ) || cards[Math.min(posicao, cards.length - 1)];
+    (correspondente?.querySelector(`.${acao}`) || fecharCarrinho)?.focus({ preventScroll: true });
+  }
+
   listaCarrinho.replaceChildren();
 
   if (!carrinho.length) {
@@ -658,6 +681,7 @@ function atualizarCarrinho() {
     `;
 
     totalCarrinho.textContent = moedaCarrinho(0);
+    restaurarFoco();
     return;
   }
 
@@ -678,6 +702,8 @@ function atualizarCarrinho() {
 
     const card = document.createElement("div");
     card.className = "item-carrinho";
+    card.dataset.produtoId = item.id;
+    card.dataset.tamanho = item.tamanho || "Único";
 
     const imagemContainer = document.createElement("div");
     imagemContainer.className = "imagem-item";
@@ -806,6 +832,7 @@ function atualizarCarrinho() {
   });
 
   totalCarrinho.textContent = totalConfirmado ? moedaCarrinho(total) : "A confirmar";
+  restaurarFoco();
 }
 
 /* LIMPAR CARRINHO */

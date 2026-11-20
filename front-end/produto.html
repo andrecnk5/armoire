@@ -14,6 +14,7 @@
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/produto.css">
   <link rel="stylesheet" href="css/armoire-auth-ui.css">
+  <link rel="stylesheet" href="css/acessibilidade.css">
 </head>
 
 <body>
@@ -32,19 +33,17 @@
     </div>
 
     <div class="icons">
-      <div class="icone-pesquisa" aria-label="Pesquisar">
+      <span class="icone-pesquisa" aria-hidden="true">
         <i class="fa-solid fa-magnifying-glass"></i>
-      </div>
+      </span>
 
-      <div class="icone-perfil" aria-label="Minha conta">
-        <i class="fa-regular fa-user"></i>
-      </div>
+      <button type="button" class="icone-perfil botao-conta" aria-haspopup="dialog" aria-label="Abrir minha conta"><i class="fa-regular fa-user"></i></button>
 
-      <div class="icone-carrinho" id="abrirCarrinho"
-           aria-label="Abrir carrinho" role="button" tabindex="0">
+      <button type="button" class="icone-carrinho" id="abrirCarrinho"
+           aria-label="Abrir carrinho" aria-controls="carrinho">
         <i class="fa-solid fa-bag-shopping"></i>
         <span class="contador-carrinho">0</span>
-      </div>
+      </button>
 
       <button class="botao-menu" id="abrirMenu" type="button"
               aria-label="Abrir menu" aria-expanded="false"
@@ -60,7 +59,7 @@
   <div class="menu-overlay" id="overlayMenu" aria-hidden="true"></div>
 
   <aside class="menu-lateral" id="menuLateral"
-         aria-hidden="true" aria-label="Menu principal">
+         aria-hidden="true" aria-label="Menu principal" inert>
 
     <div class="menu-topo">
       <span>MENU</span>
@@ -222,7 +221,7 @@
             <span>Composição e detalhes</span>
             <i class="fa-solid fa-chevron-down"></i>
           </div>
-          <div class="conteudo-composicao" id="composicaoProduto"></div>
+          <ul class="conteudo-composicao" id="composicaoProduto"></ul>
         </div>
       </div>
     </section>
@@ -248,7 +247,8 @@
       </p>
 
       <form class="newsletter-form">
-        <input type="email" placeholder="Seu melhor e-mail" required>
+        <label class="sr-only" for="newsletter-email-produto-1">Seu e-mail para receber novidades</label>
+        <input id="newsletter-email-produto-1" name="email" autocomplete="email" type="email" placeholder="Seu melhor e-mail" required>
         <button type="submit">
           INSCREVER-SE
           <i class="fa-solid fa-arrow-right"></i>
@@ -302,7 +302,7 @@
   </footer>
 
   <!-- NOTIFICAÇÃO -->
-  <div class="toast-carrinho" id="toastCarrinho">
+  <div class="toast-carrinho" id="toastCarrinho" role="status" aria-live="polite">
     <div class="toast-icone">
       <i class="fa-solid fa-check"></i>
     </div>
@@ -316,7 +316,7 @@
   <div class="overlay-carrinho" id="overlayCarrinho"></div>
 
   <aside class="carrinho" id="carrinho"
-         aria-label="Carrinho de compras">
+         aria-label="Carrinho de compras" inert aria-hidden="true">
 
     <div class="topo-carrinho">
       <div>
@@ -346,6 +346,8 @@
   </aside>
 
   <!-- SCRIPTS -->
+  <script src="js/acessibilidade.js"></script>
+
   <script src="js/produtos-data.js"></script>
   <script src="js/carrinho.js"></script>
   <script src="js/armoire-supabase.js"></script>

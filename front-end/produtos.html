@@ -22,6 +22,7 @@
         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
 <link rel="stylesheet" href="css/armoire-auth-ui.css">
+<link rel="stylesheet" href="css/acessibilidade.css">
 </head>
 
 <body>
@@ -43,7 +44,7 @@
 
 <aside
     id="carrinho"
-    class="carrinho">
+    class="carrinho" inert aria-hidden="true">
 
     <div class="topo-carrinho">
 
@@ -131,12 +132,12 @@
 
         <i class="fa-solid fa-magnifying-glass"></i>
 
-        <i class="fa-regular fa-user"></i>
+        <button type="button" class="botao-conta" aria-haspopup="dialog" aria-label="Abrir minha conta"><i class="fa-regular fa-user" aria-hidden="true"></i></button>
 
 
-        <div
+        <button type="button"
             class="icone-carrinho"
-            id="abrirCarrinho">
+            id="abrirCarrinho" aria-label="Abrir carrinho" aria-controls="carrinho">
 
             <i class="fa-solid fa-bag-shopping"></i>
 
@@ -144,7 +145,7 @@
                 0
             </span>
 
-        </div>
+        </button>
 
     <button
          type="button"
@@ -402,7 +403,7 @@
             </label>
 
         </div>
-  
+
 
 <!-- =============================================
      CORES
@@ -576,10 +577,9 @@
                  SUÉTER
             ========================================== -->
 
-            <a
-                href="produto.html?id=sueterp-frente"
-                class="produto"
-                data-produto-id="sueterp-frente">
+            <div class="catalogo-card" data-produto-id="sueterp-frente">
+                <article class="produto" data-produto-id="sueterp-frente">
+                    <a href="produto.html?id=sueterp-frente">
 
                 <img
                     src="images/sueterp-frente.png"
@@ -593,11 +593,12 @@
                     R$ 139,99
                 </p>
 
-                <button type="button">
-                    Comprar
-                </button>
 
-            </a>
+
+                    </a>
+                    <button type="button">Comprar</button>
+                </article>
+            </div>
 
 
 
@@ -605,10 +606,9 @@
                  POLARBLUM
             ========================================== -->
 
-            <a
-                href="produto.html?id=polarblum-frente"
-                class="produto"
-                data-produto-id="polarblum-frente">
+            <div class="catalogo-card" data-produto-id="polarblum-frente">
+                <article class="produto" data-produto-id="polarblum-frente">
+                    <a href="produto.html?id=polarblum-frente">
 
                 <img
                     src="images/polarblum-frente.png"
@@ -622,11 +622,12 @@
                     R$ 159,99
                 </p>
 
-                <button type="button">
-                    Comprar
-                </button>
 
-            </a>
+
+                    </a>
+                    <button type="button">Comprar</button>
+                </article>
+            </div>
 
 
 
@@ -634,10 +635,9 @@
                  FLEECE
             ========================================== -->
 
-            <a
-                href="produto.html?id=fleece-frente"
-                class="produto"
-                data-produto-id="fleece-frente">
+            <div class="catalogo-card" data-produto-id="fleece-frente">
+                <article class="produto" data-produto-id="fleece-frente">
+                    <a href="produto.html?id=fleece-frente">
 
                 <img
                     src="images/fleece-frente.png"
@@ -651,11 +651,12 @@
                     R$ 139,99
                 </p>
 
-                <button type="button">
-                    Comprar
-                </button>
 
-            </a>
+
+                    </a>
+                    <button type="button">Comprar</button>
+                </article>
+            </div>
 
 
 
@@ -663,10 +664,9 @@
                  FRANCE AC
             ========================================== -->
 
-            <a
-                href="produto.html?id=france-ac"
-                class="produto"
-                data-produto-id="france-ac">
+            <div class="catalogo-card" data-produto-id="france-ac">
+                <article class="produto" data-produto-id="france-ac">
+                    <a href="produto.html?id=france-ac">
 
                 <img
                     src="images/france-ac.png"
@@ -680,11 +680,12 @@
                     R$ 89,99
                 </p>
 
-                <button type="button">
-                    Comprar
-                </button>
 
-            </a>
+
+                    </a>
+                    <button type="button">Comprar</button>
+                </article>
+            </div>
 
 
 
@@ -692,10 +693,9 @@
                  BALTIC AC
             ========================================== -->
 
-            <a
-                href="produto.html?id=riskbaltic"
-                class="produto"
-                data-produto-id="riskbaltic">
+            <div class="catalogo-card" data-produto-id="riskbaltic">
+                <article class="produto" data-produto-id="riskbaltic">
+                    <a href="produto.html?id=riskbaltic">
 
                 <img
                     src="images/riskbaltic.png"
@@ -709,11 +709,12 @@
                     R$ 159,99
                 </p>
 
-                <button type="button">
-                    Comprar
-                </button>
 
-            </a>
+
+                    </a>
+                    <button type="button">Comprar</button>
+                </article>
+            </div>
 
 
 
@@ -721,10 +722,9 @@
                  FLEECE LUMIÉRE
             ========================================== -->
 
-            <a
-                href="produto.html?id=lumiere"
-                class="produto"
-                data-produto-id="lumiere">
+            <div class="catalogo-card" data-produto-id="lumiere">
+                <article class="produto" data-produto-id="lumiere">
+                    <a href="produto.html?id=lumiere">
 
                 <img
                     src="images/lumiere.png"
@@ -738,11 +738,12 @@
                     R$ 209,99
                 </p>
 
-                <button type="button">
-                    Comprar
-                </button>
 
-            </a>
+
+                    </a>
+                    <button type="button">Comprar</button>
+                </article>
+            </div>
 
 
 
@@ -750,10 +751,9 @@
                  CALÇA LUMIÉRE
             ========================================== -->
 
-            <a
-                href="produto.html?id=lumierecalca"
-                class="produto"
-                data-produto-id="lumierecalca">
+            <div class="catalogo-card" data-produto-id="lumierecalca">
+                <article class="produto" data-produto-id="lumierecalca">
+                    <a href="produto.html?id=lumierecalca">
 
                 <img
                     src="images/lumierecalca.png"
@@ -767,11 +767,12 @@
                     R$ 169,99
                 </p>
 
-                <button type="button">
-                    Comprar
-                </button>
 
-            </a>
+
+                    </a>
+                    <button type="button">Comprar</button>
+                </article>
+            </div>
 
 
 
@@ -779,10 +780,9 @@
                  BERMUDA LUMIÉRE
             ========================================== -->
 
-            <a
-                href="produto.html?id=lumiereberm"
-                class="produto"
-                data-produto-id="lumiereberm">
+            <div class="catalogo-card" data-produto-id="lumiereberm">
+                <article class="produto" data-produto-id="lumiereberm">
+                    <a href="produto.html?id=lumiereberm">
 
                 <img
                     src="images/lumiereberm.png"
@@ -796,11 +796,12 @@
                     R$ 139,99
                 </p>
 
-                <button type="button">
-                    Comprar
-                </button>
 
-            </a>
+
+                    </a>
+                    <button type="button">Comprar</button>
+                </article>
+            </div>
 
 
 
@@ -808,10 +809,9 @@
                  LEMONTEE
             ========================================== -->
 
-            <a
-                href="produto.html?id=lemontee"
-                class="produto"
-                data-produto-id="lemontee">
+            <div class="catalogo-card" data-produto-id="lemontee">
+                <article class="produto" data-produto-id="lemontee">
+                    <a href="produto.html?id=lemontee">
 
                 <img
                     src="images/lemontee.png"
@@ -825,13 +825,14 @@
                     R$ 119,99
                 </p>
 
-                <button type="button">
-                    Comprar
-                </button>
 
-            
+
+
+                    </a>
+                    <button type="button">Comprar</button>
+                </article>
+            </div>
         <!-- Fim do último card de produto -->
-        </a>
 
     </div> <!-- Fim da grade-produtos -->
 
@@ -945,7 +946,8 @@
 
     <form class="newsletter-form">
 
-        <input
+        <label class="sr-only" for="newsletter-email-produtos-1">Seu e-mail para receber novidades</label>
+        <input id="newsletter-email-produtos-1" name="email" autocomplete="email"
             type="email"
             placeholder="Digite seu melhor e-mail">
 
@@ -965,7 +967,7 @@
 
 <div
     id="toastCarrinho"
-    class="toast-carrinho">
+    class="toast-carrinho" role="status" aria-live="polite">
 
     <i class="fa-solid fa-circle-check"></i>
 
@@ -1070,7 +1072,7 @@
 
 <div
     class="quick-shop-overlay"
-    id="quickShopOverlay">
+    id="quickShopOverlay" inert>
 
 
     <div
@@ -1156,7 +1158,7 @@
 
                 <p
                     class="quick-shop-erro"
-                    id="quickShopErro">
+                    id="quickShopErro" role="status" aria-live="polite">
 
                     Faltou apenas selecionar o seu tamanho
 
@@ -1185,7 +1187,7 @@
 
                     <button
                         type="button"
-                        id="quickShopMenos">
+                        id="quickShopMenos" aria-label="Diminuir quantidade">
 
                         −
 
@@ -1202,7 +1204,7 @@
 
                     <button
                         type="button"
-                        id="quickShopMais">
+                        id="quickShopMais" aria-label="Aumentar quantidade">
 
                         +
 
@@ -1255,6 +1257,8 @@
 <!-- =====================================================
      DADOS DOS PRODUTOS
 ===================================================== -->
+
+<script src="js/acessibilidade.js"></script>
 
 <script src="js/produtos-data.js"></script>
 
@@ -1590,6 +1594,9 @@ document.addEventListener(
                 overlay.classList.add(
                     "ativo"
                 );
+                window.armoireDialogos?.abrir(overlay, {
+                    nome: "Compra rápida", fechar: fecharQuickShop, inicial: fechar
+                });
 
 
                 document.body.classList.add(
@@ -1777,6 +1784,7 @@ document.addEventListener(
             overlay.classList.remove(
                 "ativo"
             );
+            window.armoireDialogos?.fechar(overlay);
 
 
             document.body.classList.remove(

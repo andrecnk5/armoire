@@ -1127,6 +1127,9 @@
       if (modalAberto !== id) return;
 
       overlay.classList.add("open");
+      window.armoireDialogos?.abrir(overlay.querySelector(".ac-looks-modal"), {
+        fechar: fecharModal, escape: false, origem: focoAnterior, externos: [overlay]
+      });
 
       overlay.querySelector(
         ".ac-looks-modal-close"
@@ -1159,6 +1162,7 @@
 
     if (overlay) {
       overlay.classList.remove("open");
+      window.armoireDialogos?.fechar(overlay.querySelector(".ac-looks-modal"));
 
       setTimeout(() => {
         if (modalAberto !== id) {
