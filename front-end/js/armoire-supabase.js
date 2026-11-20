@@ -79,13 +79,13 @@
   }
 
   async function carregarCatalogo() {
-    const controller = new AbortController();
+    const controller = typeof AbortController === "function" ? new AbortController() : null;
     let timer;
     try {
       const requisicao = async () => {
         const resposta = await fetch(
           `${PROJECT_URL}/rest/v1/products?select=*&is_active=eq.true`,
-          { headers: { apikey: PUBLIC_KEY }, signal: controller.signal }
+          { headers: { apikey: PUBLIC_KEY }, signal: controller?.signal }
         );
         if (!resposta.ok) throw new Error(`Erro HTTP ${resposta.status}`);
         const dados = await resposta.json();
@@ -103,7 +103,7 @@
       };
       const limite = new Promise((_, reject) => {
         timer = setTimeout(() => {
-          controller.abort();
+          controller?.abort();
           reject(new Error("Tempo de consulta do catálogo excedido."));
         }, 8000);
       });

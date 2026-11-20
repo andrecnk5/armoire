@@ -4366,3 +4366,40 @@ body #menuLateral .menu-inferior span {
 @media (max-width: 480px) {
     body #menuLateral.menu-lateral { padding: 35px 26px; }
 }
+
+/* Carregamento, produto ausente e imagem indisponível. */
+.produto-container[hidden],
+.produtos-relacionados[hidden],
+.estado-produto[hidden],
+.aviso-catalogo-produto[hidden],
+#imagemPrincipal[hidden],
+#estadoImagem[hidden],
+.miniaturas img[hidden] {
+  display: none;
+}
+
+.estado-produto {
+  margin: 60px auto;
+  padding: 24px;
+  max-width: 760px;
+  text-align: center;
+  color: #031638;
+}
+
+.estado-produto p {
+  margin: 20px 0;
+  line-height: 1.6;
+}
+
+.estado-produto a {
+  color: inherit;
+  text-underline-offset: 4px;
+}
+
+.aviso-catalogo-produto {
+  max-width: 1180px;
+  margin: 20px auto;
+  padding: 0 24px;
+  line-height: 1.6;
+  color: #031638;
+}

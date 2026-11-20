@@ -45,8 +45,8 @@ class Elemento {
   get parentNode() { return this.parent; }
   closest(selector) { return this.matches(selector) ? this : this.parent?.closest(selector) || null; }
   setAttribute(name, value) { this.attributes[name] = String(value); }
-  getAttribute(name) { return this.attributes[name] ?? null; }
-  removeAttribute(name) { delete this.attributes[name]; }
+  getAttribute(name) { return this.attributes[name] ?? this[name] ?? null; }
+  removeAttribute(name) { delete this.attributes[name]; delete this[name]; }
   focus() {}
   contains(node) { return this === node || this.children.some(c => c.contains(node)); }
   addEventListener(type, fn) { (this.listeners[type] ||= []).push(fn); }
@@ -99,7 +99,7 @@ class Elemento {
   querySelector(selector) { return this.querySelectorAll(selector)[0] || null; }
 }
 
-async function pagina({ page = 'cart', id = 'black-hat', saved = [], stock, sizes, remote, offline = false, slow = false, malformed = false, beforeReady, afterDispatch, fetchOverride, favorites = false, search } = {}) {
+async function pagina({ page = 'cart', id = 'black-hat', saved = [], stock, sizes, remote, offline = false, slow = false, malformed = false, beforeReady, afterDispatch, fetchOverride, favorites = false, search, withoutAbort = false } = {}) {
   const document = new Elemento('document');
   document.readyState = 'loading';
   document.head = new Elemento('head');
@@ -120,7 +120,9 @@ async function pagina({ page = 'cart', id = 'black-hat', saved = [], stock, size
     add('toastCarrinho').append(new Elemento('span'));
   }
   if (page === 'produto') {
-    ['tamanhosProduto', 'tamanhoSelecionado', 'quantidadeProduto', 'diminuirQuantidade', 'aumentarQuantidade'].forEach(id => add(id));
+    ['tamanhosProduto', 'tamanhoSelecionado', 'quantidadeProduto', 'diminuirQuantidade', 'aumentarQuantidade', 'miniaturas', 'imagemPrincipal', 'estadoImagem', 'estadoProduto', 'tituloEstadoProduto', 'descricaoEstadoProduto', 'avisoCatalogoProduto'].forEach(id => add(id));
+    add('conteudoProduto', 'produto-container').hidden = true;
+    add('relacionados', 'produtos-relacionados').hidden = true;
     add('btnComprar', 'btn-comprar', 'button');
   }
   if (page === 'quick') {
@@ -139,12 +141,21 @@ async function pagina({ page = 'cart', id = 'black-hat', saved = [], stock, size
     for (const value of ['M', 'G']) add('size-' + value, 'filtro-tamanho', 'input').value = value;
     add('cor-preto', 'filtro-cor', 'button').dataset.cor = 'Preto';
   }
+  if (page === 'home') {
+    add('header', 'header-home'); add('topbar', 'top-bar');
+    add('hero', 'hero-imagem').append(add('heroImg', '', 'img'));
+  }
+  const windowEvents = new Elemento('window');
   const timers = new Map();
   let timerId = 0;
   const storage = new Map([['carrinho', JSON.stringify(saved)]]);
   const events = [];
   const context = vm.createContext({
-    document, URLSearchParams, URL, AbortController, console: { log() {}, warn() {}, error() {}, table() {}, info() {} },
+    document, URLSearchParams, URL, AbortController,
+    IntersectionObserver: class { observe() {} unobserve() {} },
+    scrollY: 0, innerHeight: 900,
+    addEventListener: (...args) => windowEvents.addEventListener(...args),
+    console: { log() {}, warn() {}, error() {}, table() {}, info() {} },
     localStorage: { getItem: key => storage.get(key) ?? null, setItem: (key, value) => storage.set(key, value) },
     location: { search: search ?? `?id=${id}`, href: 'http://localhost/produtos.html' + (search ?? `?id=${id}`) },
     history: { replaceState: (_, __, url) => { context.location.href = String(url); context.location.search = new URL(url).search; } },
@@ -152,7 +163,7 @@ async function pagina({ page = 'cart', id = 'black-hat', saved = [], stock, size
     setTimeout: (fn, ms) => { timers.set(++timerId, { fn, ms }); return timerId; },
     clearTimeout: id => timers.delete(id), requestAnimationFrame: fn => fn(),
     alert: message => { throw new Error('Alerta inesperado: ' + message); },
-    dispatchEvent: event => { events.push(event); return true; },
+    dispatchEvent: event => { events.push(event); return windowEvents.dispatchEvent(event); },
     fetch: fetchOverride || (async () => {
       if (offline) throw new Error('Rede indisponível (simulada)');
       if (slow) return new Promise(() => {});
@@ -170,6 +181,7 @@ async function pagina({ page = 'cart', id = 'black-hat', saved = [], stock, size
     stock: p.estoque, sizes: p.tamanhos, images: p.imagens, colors: p.cores,
     is_active: true
   }));
+  if (withoutAbort) context.AbortController = undefined;
   run('js/armoire-supabase.js');
   run('js/carrinho.js');
   if (page === 'catalogo') {
@@ -186,6 +198,7 @@ async function pagina({ page = 'cart', id = 'black-hat', saved = [], stock, size
       run('js/armoire-favoritos.js');
     }
   }
+  if (page === 'home') run('js/home.js');
   if (page === 'produto') run('js/produto.js');
   if (page === 'quick') {
     const inline = [...read('produtos.html').matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)]
@@ -204,10 +217,10 @@ async function pagina({ page = 'cart', id = 'black-hat', saved = [], stock, size
   if (beforeReady) beforeReady({ context, document, add, timers });
   document.readyState = 'interactive';
   document.dispatchEvent({ type: 'DOMContentLoaded' });
-  if (afterDispatch) afterDispatch({ context, document });
+  if (afterDispatch) afterDispatch({ context, document, timers });
   await Promise.all(document.pending || []);
   return {
-    context, document, products, storage, events, add, timers,
+    context, document, products, storage, events, add, timers, windowEvents,
     get: id => document.getElementById(id),
     cart: () => JSON.parse(storage.get('carrinho')),
     money: value => value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })

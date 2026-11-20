@@ -93,14 +93,25 @@
 
   <!-- CONTEÚDO PRINCIPAL -->
   <main>
-    <section class="produto-container">
+    <section id="estadoProduto" class="estado-produto" role="status">
+      <h1 id="tituloEstadoProduto">Carregando produto</h1>
+      <p id="descricaoEstadoProduto">Estamos consultando a coleção. Aguarde um instante.</p>
+      <a href="produtos.html">VOLTAR AO CATÁLOGO</a>
+    </section>
+
+    <p id="avisoCatalogoProduto" class="aviso-catalogo-produto" role="status" hidden>
+      Exibindo dados do catálogo local. Não foi possível confirmar a disponibilidade atual da coleção.
+    </p>
+
+    <section class="produto-container" hidden>
 
       <!-- GALERIA -->
       <div class="produto-galeria">
         <div class="miniaturas" id="miniaturas"></div>
 
         <div class="imagem-principal-container">
-          <img id="imagemPrincipal" src="" alt="Produto Armoire Central">
+          <img id="imagemPrincipal" alt="Produto Armoire Central">
+          <p id="estadoImagem" role="status" hidden>Imagem indisponível para esta peça.</p>
         </div>
       </div>
 
@@ -217,7 +228,7 @@
     </section>
 
     <!-- PRODUTOS RELACIONADOS -->
-    <section class="produtos-relacionados">
+    <section class="produtos-relacionados" hidden>
       <div class="titulo-relacionados">
         <span>EXPLORE MAIS</span>
         <h2>Você também pode gostar</h2>

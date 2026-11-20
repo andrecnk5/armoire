@@ -41,10 +41,7 @@ const produtos = {
         ],
 
         imagens: [
-            "images/produtos/black-hat/frente.png",
-            "images/produtos/black-hat/esquerda.png",
-            "images/produtos/black-hat/direita.png",
-            "images/produtos/black-hat/costas.png"
+            "images/produtos/black-hat/frente.png"
         ],
 
         tamanhos: [
@@ -100,10 +97,7 @@ const produtos = {
         ],
 
         imagens: [
-            "images/produtos/armoire-hat/frente.png",
-            "images/produtos/armoire-hat/esquerda.png",
-            "images/produtos/armoire-hat/direita.png",
-            "images/produtos/armoire-hat/costas.png"
+            "images/produtos/armoire-hat/frente.png"
         ],
 
         tamanhos: [
@@ -159,10 +153,7 @@ const produtos = {
         ],
 
         imagens: [
-            "images/produtos/sueterp/frente.png",
-            "images/produtos/sueterp/esquerda.png",
-            "images/produtos/sueterp/direita.png",
-            "images/produtos/sueterp/costas.png"
+            "images/produtos/sueterp/frente.png"
         ],
 
         tamanhos: [
@@ -222,8 +213,6 @@ const produtos = {
 
         imagens: [
             "images/produtos/polarblum/frente.png",
-            "images/produtos/polarblum/esquerda.png",
-            "images/produtos/polarblum/direita.png",
             "images/produtos/polarblum/costas.png"
         ],
 
@@ -282,10 +271,7 @@ const produtos = {
         ],
 
         imagens: [
-            "images/produtos/france-ac/frente.png",
-            "images/produtos/france-ac/esquerda.png",
-            "images/produtos/france-ac/direita.png",
-            "images/produtos/france-ac/costas.png"
+            "images/produtos/france-ac/frente.png"
         ],
 
         tamanhos: [
@@ -343,7 +329,6 @@ const produtos = {
         imagens: [
             "images/produtos/fleece/frente.png",
             "images/produtos/fleece/esquerda.png",
-            "images/produtos/fleece/direita.png",
             "images/produtos/fleece/costas.png"
         ],
 
@@ -403,10 +388,7 @@ const produtos = {
         ],
 
         imagens: [
-            "images/produtos/baltic/frente.png",
-            "images/produtos/baltic/esquerda.png",
-            "images/produtos/baltic/direita.png",
-            "images/produtos/baltic/costas.png"
+            "images/produtos/baltic/frente.png"
         ],
 
         tamanhos: [
@@ -469,10 +451,7 @@ const produtos = {
         ],
 
         imagens: [
-            "images/produtos/lumierecalca/frente.png",
-            "images/produtos/lumierecalca/esquerda.png",
-            "images/produtos/lumierecalca/direita.png",
-            "images/produtos/lumierecalca/costas.png"
+            "images/produtos/lumierecalca/frente.png"
         ],
 
         tamanhos: [
@@ -531,10 +510,7 @@ const produtos = {
         ],
 
         imagens: [
-            "images/produtos/lumiere/frente.png",
-            "images/produtos/lumiere/esquerda.png",
-            "images/produtos/lumiere/direita.png",
-            "images/produtos/lumiere/costas.png"
+            "images/produtos/lumiere/frente.png"
         ],
 
         tamanhos: [
@@ -593,10 +569,7 @@ const produtos = {
         ],
 
         imagens: [
-            "images/produtos/lumiereberm/frente.png",
-            "images/produtos/lumiereberm/esquerda.png",
-            "images/produtos/lumiereberm/direita.png",
-            "images/produtos/lumiereberm/costas.png"
+            "images/produtos/lumiereberm/frente.png"
         ],
 
         tamanhos: [
@@ -654,10 +627,7 @@ const produtos = {
         ],
 
         imagens: [
-            "images/produtos/lemontee/frente.png",
-            "images/produtos/lemontee/esquerda.png",
-            "images/produtos/lemontee/direita.png",
-            "images/produtos/lemontee/costas.png"
+            "images/produtos/lemontee/frente.png"
         ],
 
         tamanhos: [

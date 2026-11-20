@@ -49,21 +49,41 @@ document.addEventListener("DOMContentLoaded", () => {
 ========================================================= */
 
 document.addEventListener("DOMContentLoaded", async () => {
-  if (window.armoireCatalogoReady) {
-    await window.armoireCatalogoReady;
+  const painelEstado = document.getElementById("estadoProduto");
+  const tituloEstado = document.getElementById("tituloEstadoProduto");
+  const descricaoEstado = document.getElementById("descricaoEstadoProduto");
+  const conteudoProduto = document.querySelector(".produto-container");
+  const relacionados = document.querySelector(".produtos-relacionados");
+  const parametros = new URLSearchParams(window.location.search);
+  const idProduto = parametros.get("id")?.trim();
+
+  function produtoNaoEncontrado() {
+    document.title = "Produto não encontrado | Armoire Central";
+    if (tituloEstado) tituloEstado.textContent = "Produto não encontrado";
+    if (descricaoEstado) descricaoEstado.textContent = window.armoireCatalogoEstado?.fonte === "local" && idProduto
+      ? "Não foi possível confirmar esta peça no catálogo local. Tente novamente ou explore os produtos disponíveis."
+      : "Esta peça não está disponível na coleção atual. Explore os produtos do catálogo.";
+    if (painelEstado) painelEstado.hidden = false;
+    if (conteudoProduto) conteudoProduto.hidden = true;
+    if (relacionados) relacionados.hidden = true;
+    const comprar = document.getElementById("btnComprar");
+    if (comprar) comprar.disabled = true;
   }
 
-  const parametros = new URLSearchParams(window.location.search);
-  const idProduto = parametros.get("id");
-
-  if (
-    !idProduto ||
-    typeof produtos === "undefined" ||
-    !produtos[idProduto]
-  ) {
-    console.error("Produto não encontrado:", idProduto);
+  // Sem ID, o retorno ao catálogo aparece imediatamente, mesmo com rede lenta.
+  if (!idProduto) { produtoNaoEncontrado(); return; }
+  if (window.armoireCatalogoReady) await window.armoireCatalogoReady;
+  if (typeof produtos === "undefined" ||
+      !Object.prototype.hasOwnProperty.call(produtos, idProduto) ||
+      !produtos[idProduto] || produtos[idProduto].ativo === false) {
+    produtoNaoEncontrado();
     return;
   }
+  const avisoCatalogo = document.getElementById("avisoCatalogoProduto");
+  if (avisoCatalogo) avisoCatalogo.hidden = window.armoireCatalogoEstado?.fonte !== "local";
+  if (painelEstado) painelEstado.hidden = true;
+  if (conteudoProduto) conteudoProduto.hidden = false;
+  if (relacionados) relacionados.hidden = false;
 
   const produto = produtos[idProduto];
 
@@ -132,57 +152,67 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   function carregarGaleria() {
     if (!imagemPrincipal || !miniaturas) return;
-
-    const imagens = Array.isArray(produto.imagens)
-      ? produto.imagens
-      : [];
-
+    const aviso = $("estadoImagem");
+    // O fallback pertence ao mesmo produto e usa a galeria local já verificada.
+    const locais = window.armoireCatalogoLocal?.[idProduto]?.imagens || [];
+    const imagens = [...new Set([
+      ...(Array.isArray(produto.imagens) ? produto.imagens : []), ...locais
+    ])].filter(imagem => typeof imagem === "string" && imagem.trim());
+    const falhas = new Set();
+    let timerImagem;
     miniaturas.replaceChildren();
-
-    if (!imagens.length) {
-      imagemPrincipal.removeAttribute("src");
-      return;
-    }
-
-    imagemPrincipal.src = imagens[0];
     imagemPrincipal.alt = produto.nome;
 
+    function exibir(imagem, animar = false) {
+      clearTimeout(timerImagem);
+      if (!imagem || falhas.has(imagem)) return;
+      imagemPrincipal.hidden = false;
+      if (aviso) aviso.hidden = true;
+      miniaturas.querySelectorAll("img").forEach(miniatura => {
+        miniatura.classList.toggle("ativa", miniatura.dataset.imagem === imagem);
+      });
+      if (animar) {
+        imagemPrincipal.classList.add("troca-imagem");
+        timerImagem = setTimeout(() => {
+          imagemPrincipal.src = imagem;
+          imagemPrincipal.classList.remove("troca-imagem");
+        }, 180);
+      } else {
+        imagemPrincipal.src = imagem;
+        imagemPrincipal.classList.remove("troca-imagem");
+      }
+    }
+
+    function indisponivel() {
+      clearTimeout(timerImagem);
+      imagemPrincipal.removeAttribute("src");
+      imagemPrincipal.hidden = true;
+      if (aviso) aviso.hidden = false;
+    }
+
+    function falhou(imagem) {
+      falhas.add(imagem);
+      miniaturas.querySelectorAll("img").forEach(miniatura => {
+        if (miniatura.dataset.imagem === imagem) miniatura.hidden = true;
+      });
+      if (imagemPrincipal.getAttribute("src") === imagem) {
+        const proxima = imagens.find(item => !falhas.has(item));
+        if (proxima) exibir(proxima);
+        else indisponivel();
+      }
+    }
+    imagemPrincipal.addEventListener("error", () => falhou(imagemPrincipal.getAttribute("src")));
     imagens.forEach((imagem, index) => {
       const miniatura = document.createElement("img");
-
-      miniatura.src = imagem;
+      miniatura.dataset.imagem = imagem;
       miniatura.alt = `${produto.nome} ${index + 1}`;
-      miniatura.className = index === 0 ? "ativa" : "";
-
-      miniatura.addEventListener("click", () => {
-        trocarImagem(imagem, miniatura);
-      });
-
+      miniatura.addEventListener("error", () => falhou(imagem));
+      miniatura.addEventListener("click", () => exibir(imagem, true));
+      miniatura.src = imagem;
       miniaturas.appendChild(miniatura);
     });
-  }
-
-  let timerImagem;
-
-  function trocarImagem(imagem, miniatura) {
-    if (!imagemPrincipal) return;
-
-    clearTimeout(timerImagem);
-
-    imagemPrincipal.classList.remove("troca-imagem");
-    void imagemPrincipal.offsetWidth;
-    imagemPrincipal.classList.add("troca-imagem");
-
-    timerImagem = setTimeout(() => {
-      imagemPrincipal.src = imagem;
-      imagemPrincipal.classList.remove("troca-imagem");
-    }, 180);
-
-    miniaturas.querySelectorAll("img").forEach(img => {
-      img.classList.remove("ativa");
-    });
-
-    miniatura.classList.add("ativa");
+    if (imagens.length) exibir(imagens[0]);
+    else indisponivel();
   }
 
   carregarGaleria();

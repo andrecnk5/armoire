@@ -4,6 +4,8 @@
 ========================================================= */
 
 document.addEventListener("DOMContentLoaded", function () {
+    if (document.body.dataset.homeInicializada === "1") return;
+    document.body.dataset.homeInicializada = "1";
 
     const menuLateral =
         document.getElementById("menuLateral");
@@ -157,11 +159,10 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
     
-window.addEventListener("scroll", verificarScroll);
-
-verificarScroll();
-
 }
+
+    window.addEventListener("scroll", verificarScroll, { passive: true });
+    verificarScroll();
     /* =====================================================
        PARALLAX SUAVE DO HERO
     ===================================================== */
@@ -196,6 +197,8 @@ verificarScroll();
     );
 
 
+
+    moverHero();
 
     /* =====================================================
        LINKS DO MENU
