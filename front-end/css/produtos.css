@@ -3025,6 +3025,9 @@ RESPONSIVO DO CARRINHO
 
 .quick-shop-overlay.ativo{
 
+    /* Visibilidade imediata para receber foco durante o fade de abertura. */
+    transition: opacity .3s ease;
+
     opacity:1;
 
     visibility:visible;

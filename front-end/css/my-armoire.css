@@ -89,6 +89,17 @@ a {
   font-size: 13px;
 }
 
+.ma-login {
+  display: block;
+  margin: 20px auto 0;
+  padding: 12px 20px;
+  border: 1px solid #031638;
+  background: #031638;
+  color: #fff;
+  font: inherit;
+  cursor: pointer;
+}
+
 .ma-toolbar {
   display: flex;
   justify-content: space-between;

@@ -148,6 +148,17 @@
     status.textContent = texto;
   }
 
+  function solicitarSessao() {
+    usuarioId = null;
+    exibirErro("Entre na sua conta para acessar o MY ARMOIRE.");
+    const login = elemento("button", "ma-login", "Entrar na minha conta");
+    login.type = "button";
+    login.addEventListener("click", () => {
+      document.dispatchEvent(new CustomEvent("armoire:solicitar-login"));
+    });
+    status.appendChild(login);
+  }
+
   /* ==========================================
      IDENTIFICAÇÃO DE CATEGORIAS
   ========================================== */
@@ -994,14 +1005,11 @@
       } = await executar(sb.auth.getUser());
 
       if (atual !== requisicaoCarregamento) return;
-      if (erroAuth) throw erroAuth;
+      if (erroAuth && erroAuth.name !== "AuthSessionMissingError") throw erroAuth;
       usuarioId = auth?.user?.id || null;
 
-      if (!auth?.user) {
-        exibirErro(
-          "Entre na sua conta para acessar o MY ARMOIRE."
-        );
-
+      if (erroAuth || !auth?.user) {
+        solicitarSessao();
         return;
       }
 
@@ -1529,8 +1537,10 @@
     roletas.forEach(roleta => { cancelAnimationFrame(roleta.raf); clearTimeout(roleta.timer); });
     roletas.clear(); selecoes.clear(); rows.replaceChildren();
     mensagemSalvamento('');
-    exibirErro(usuarioId ? "Carregando seu guarda-roupa..." : "Entre na sua conta para acessar o MY ARMOIRE.");
-    if (usuarioId) setTimeout(carregar, 0);
+    if (usuarioId) {
+      exibirErro("Carregando seu guarda-roupa...");
+      setTimeout(carregar, 0);
+    } else solicitarSessao();
   });
   carregar();
 

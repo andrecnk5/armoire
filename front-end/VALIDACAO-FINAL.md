@@ -2,7 +2,30 @@
 
 Etapa 06, 20/11/2026. Status: **COM RESSALVAS**. Branch exclusiva: `in_dev_front-end`.
 
-A Etapa 05 foi publicada antes desta etapa. O GitHub confirmou o HEAD remoto `f614536d738585ed13e329cde62e6fb923e4e558`, que é a base desta revisão. O commit da Etapa 06 deve permanecer local até autorização de publicação; seu SHA será informado no relatório da conversa e pode ser consultado com `git log -1`.
+A Etapa 06 foi publicada no commit `929792f84d1e1ea44e8c01da642ce75f32f63bc9`, conforme AR-C02-EXEC-E06-002. A correção AR-C02-COR-E06-001 descrita abaixo permanece em um commit local, sem push.
+
+## Correção AR-C02-COR-E06-001 — 20/11/2026
+
+As cinco correções passaram na validação em Chrome real (158.0.8127.37, Windows headless, controlado por CDP), com perfil isolado e servidor em `127.0.0.1`. Foram aprovadas 33 verificações de navegador:
+
+- Favoritar sem sessão abre o login existente e foca o e-mail. A ausência de sessão retornada pelo SDK não gera erro no console, inclusive na inicialização dos favoritos.
+- My Armoire apresenta uma mensagem de acesso à conta e botão de login, também após sair da sessão. Tab/Shift+Tab funcionam no login; Escape devolve foco ao botão de origem.
+- Quick Shop recebe foco no botão de fechar, contém Tab/Shift+Tab, fecha por Escape e devolve o foco a Comprar. A visibilidade passa a ser imediata na abertura, preservando o fade de opacidade.
+- Home, catálogo, produto e My Armoire foram conferidos em 320, 375, 390, 768 e 1280 px. Os textos da faixa de frete e do título do catálogo cabem em seus contêineres; não houve overflow horizontal. Capturas de 320 px confirmam os recortes corrigidos.
+- As quatro páginas referenciam o monograma existente `images/logoinv.png` como favicon. O recurso retornou HTTP 200; nenhuma resposta HTTP de erro foi observada.
+- Console sem erros e nenhuma exceção JavaScript não tratada nos cenários executados. Nenhuma requisição de escrita remota, login, cadastro ou envio de formulário foi executado.
+
+Regressões: **111 passaram, 0 falharam** (108 existentes e 3 novos testes de ausência de sessão do SDK e preservação de falhas reais). Para repetir:
+
+```bash
+node --test --test-isolation=none front-end/tests/etapa0{1,2,3,4,5,6}.test.cjs front-end/tests/correcao-etapa06.test.cjs
+```
+
+Auth autenticado, CRUD remoto, RLS e permissões continuam sem validação, por ausência de conta de demonstração autorizada. A emulação de larguras em Chrome desktop não substitui conferência em dispositivos físicos. Nenhum arquivo fora de `front-end/` foi alterado; nenhum merge ou push foi executado nesta correção.
+
+## Registro original da Etapa 06
+
+As seções seguintes preservam as evidências da execução original. As indicações de navegador indisponível e testes visuais pendentes desse registro foram superadas pela validação real e pela correção documentadas acima; as ressalvas de autenticação e backend permanecem.
 
 ## Alterações e preservação
 

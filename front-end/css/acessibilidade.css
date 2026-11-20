@@ -94,7 +94,24 @@ body .toast-carrinho {
   body header .icons-home > .fa-magnifying-glass { display: none; }
   body header .icons, body header .icons-home { gap: 8px; }
   body header .logo img { width: 90px; }
-  body .top-bar { box-sizing: border-box; height: auto; min-height: 30px; font-size: 10px; padding: 7px 12px; }
+  body .top-bar {
+    box-sizing: border-box;
+    height: 40px;
+    min-height: 40px;
+    font-size: 10px;
+    line-height: 1.4;
+    padding: 4px 12px;
+    text-align: center;
+  }
+  body .top-bar p { margin: 0; }
+  body .top-bar + header { top: 40px; }
+  body .banner-overlay h1 {
+    box-sizing: border-box;
+    max-width: 100%;
+    padding-inline: 12px;
+    font-size: clamp(28px, 10vw, 45px);
+    letter-spacing: clamp(2px, .8vw, 5px);
+  }
   body .quick-shop { grid-template-columns: minmax(0, 1fr); padding: 24px 16px; }
   body .quick-shop-imagem img { max-width: 100%; max-height: 230px; object-fit: contain; }
   body .quick-shop-info { min-width: 0; padding: 0; }

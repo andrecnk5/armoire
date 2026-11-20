@@ -220,8 +220,8 @@
         try {
             const { data, error: authError } = await executar(sb.auth.getUser());
             if (atual !== versao) return;
-            if (authError) throw authError;
-            if (!data?.user) { solicitarLogin(); return; }
+            if (authError && authError.name !== 'AuthSessionMissingError') throw authError;
+            if (authError || !data?.user) { solicitarLogin(); return; }
             if (usuario?.id !== data.user.id || erroFavoritos || carregandoFavoritos) {
                 usuario = data.user;
                 await carregarFavoritos();
@@ -464,8 +464,8 @@
         const atual = versao;
         const { data, error } = await executar(sb.auth.getUser());
         if (atual !== versao) return;
-        if (error) throw error;
-        usuario = data?.user || null;
+        if (error && error.name !== 'AuthSessionMissingError') throw error;
+        usuario = error ? null : data?.user || null;
 
         await carregarFavoritos();
 
