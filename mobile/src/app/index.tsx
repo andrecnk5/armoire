@@ -2,7 +2,6 @@ import { FontAwesome } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import {
-  Dimensions,
   Image,
   Modal,
   ScrollView,
@@ -12,8 +11,6 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-
-const { width } = Dimensions.get('window');
 
 export default function Home() {
   const router = useRouter();
