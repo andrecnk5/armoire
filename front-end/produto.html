@@ -1,0 +1,347 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Produto | Armoire Central</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/produto.css">
+  <link rel="stylesheet" href="css/armoire-auth-ui.css">
+</head>
+
+<body>
+
+  <!-- BARRA SUPERIOR -->
+  <div class="top-bar">
+    <p>FRETE GRÁTIS PARA TODO BRASIL EM COMPRAS ACIMA DE R$499</p>
+  </div>
+
+  <!-- HEADER -->
+  <header>
+    <div class="logo">
+      <a href="index.html">
+        <img src="images/logoinv.png" alt="Armoire Central">
+      </a>
+    </div>
+
+    <div class="icons">
+      <div class="icone-pesquisa" aria-label="Pesquisar">
+        <i class="fa-solid fa-magnifying-glass"></i>
+      </div>
+
+      <div class="icone-perfil" aria-label="Minha conta">
+        <i class="fa-regular fa-user"></i>
+      </div>
+
+      <div class="icone-carrinho" id="abrirCarrinho"
+           aria-label="Abrir carrinho" role="button" tabindex="0">
+        <i class="fa-solid fa-bag-shopping"></i>
+        <span class="contador-carrinho">0</span>
+      </div>
+
+      <button class="botao-menu" id="abrirMenu" type="button"
+              aria-label="Abrir menu" aria-expanded="false"
+              aria-controls="menuLateral">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- MENU HAMBÚRGUER — PADRÃO HOME -->
+  <div class="menu-overlay" id="overlayMenu" aria-hidden="true"></div>
+
+  <aside class="menu-lateral" id="menuLateral"
+         aria-hidden="true" aria-label="Menu principal">
+
+    <div class="menu-topo">
+      <span>MENU</span>
+      <button id="fecharMenu" type="button" aria-label="Fechar menu">
+        <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+      </button>
+    </div>
+
+    <nav class="menu-links" aria-label="Navegação principal">
+      <a href="index.html">INÍCIO</a>
+      <a href="produtos.html">PRODUTOS</a>
+      <a href="#">QUEM SOMOS</a>
+      <a href="#">FALE CONOSCO</a>
+    </nav>
+
+    <div class="menu-inferior">
+      <p>ARMOIRE CENTRAL</p>
+      <span>Elegância em cada detalhe.</span>
+    </div>
+  </aside>
+
+  <!-- BREADCRUMB -->
+  <section class="breadcrumb">
+    <a href="index.html">Início</a>
+    <i class="fa-solid fa-chevron-right"></i>
+    <a href="produtos.html">Produtos</a>
+    <i class="fa-solid fa-chevron-right"></i>
+    <span id="breadcrumbProduto">Produto</span>
+  </section>
+
+  <!-- CONTEÚDO PRINCIPAL -->
+  <main>
+    <section class="produto-container">
+
+      <!-- GALERIA -->
+      <div class="produto-galeria">
+        <div class="miniaturas" id="miniaturas"></div>
+
+        <div class="imagem-principal-container">
+          <img id="imagemPrincipal" src="" alt="Produto Armoire Central">
+        </div>
+      </div>
+
+      <!-- INFORMAÇÕES -->
+      <div class="produto-info">
+        <span class="marca-produto" id="marcaProduto">
+          ARMOIRE CENTRAL
+        </span>
+
+        <h1 id="nomeProduto">Produto</h1>
+
+        <div class="avaliacao">
+          <div class="estrelas">
+            <i class="fa-solid fa-star"></i>
+            <i class="fa-solid fa-star"></i>
+            <i class="fa-solid fa-star"></i>
+            <i class="fa-solid fa-star"></i>
+            <i class="fa-solid fa-star"></i>
+          </div>
+          <span>(0 avaliações)</span>
+        </div>
+
+        <div class="preco-produto">
+          <strong id="precoProduto">R$ 0,00</strong>
+          <span id="parcelamentoProduto">6x sem juros</span>
+        </div>
+
+        <div class="preco-pix">
+          <i class="fa-brands fa-pix"></i>
+          <span>5% OFF no Pix</span>
+        </div>
+
+        <!-- CORES -->
+        <div class="opcao-produto">
+          <div class="titulo-opcao">
+            <span>Cor</span>
+            <strong id="corSelecionada">Selecionar</strong>
+          </div>
+          <div class="cores" id="coresProduto"></div>
+        </div>
+
+        <!-- TAMANHOS -->
+        <div class="opcao-produto">
+          <div class="titulo-opcao">
+            <span>Tamanho</span>
+            <strong id="tamanhoSelecionado">Selecionar</strong>
+          </div>
+          <div class="tamanhos" id="tamanhosProduto"></div>
+        </div>
+
+        <!-- QUANTIDADE -->
+        <div class="quantidade-container">
+          <span>Quantidade</span>
+          <div class="quantidade">
+            <button type="button" id="diminuirQuantidade"
+                    aria-label="Diminuir quantidade">−</button>
+            <span id="quantidadeProduto">1</span>
+            <button type="button" id="aumentarQuantidade"
+                    aria-label="Aumentar quantidade">+</button>
+          </div>
+        </div>
+
+        <!-- ADICIONAR AO CARRINHO -->
+        <button class="btn-comprar" id="btnComprar" type="button">
+          <i class="fa-solid fa-bag-shopping"></i>
+          ADICIONAR AO CARRINHO
+        </button>
+
+        <!-- BENEFÍCIOS -->
+        <div class="informacoes-compra">
+          <div class="informacao-compra">
+            <i class="fa-solid fa-truck"></i>
+            <div>
+              <strong>Frete grátis</strong>
+              <span>Nas compras acima de R$499</span>
+            </div>
+          </div>
+
+          <div class="informacao-compra">
+            <i class="fa-solid fa-shield-halved"></i>
+            <div>
+              <strong>Compra segura</strong>
+              <span>Seus dados estão protegidos</span>
+            </div>
+          </div>
+
+          <div class="informacao-compra">
+            <i class="fa-solid fa-arrow-rotate-left"></i>
+            <div>
+              <strong>Troca fácil</strong>
+              <span>Consulte nossa política de trocas</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- DESCRIÇÃO -->
+        <div class="descricao-produto">
+          <div class="titulo-secao-produto">
+            <span>Descrição</span>
+            <i class="fa-solid fa-chevron-down"></i>
+          </div>
+          <div class="conteudo-descricao" id="descricaoProduto"></div>
+        </div>
+
+        <!-- COMPOSIÇÃO -->
+        <div class="composicao-produto">
+          <div class="titulo-secao-produto">
+            <span>Composição e detalhes</span>
+            <i class="fa-solid fa-chevron-down"></i>
+          </div>
+          <div class="conteudo-composicao" id="composicaoProduto"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PRODUTOS RELACIONADOS -->
+    <section class="produtos-relacionados">
+      <div class="titulo-relacionados">
+        <span>EXPLORE MAIS</span>
+        <h2>Você também pode gostar</h2>
+      </div>
+      <div class="grid-relacionados" id="produtosRelacionados"></div>
+    </section>
+  </main>
+
+  <!-- NEWSLETTER -->
+  <section class="newsletter">
+    <div class="newsletter-conteudo">
+      <span>ARMOIRE CENTRAL</span>
+      <h2>Receba novidades<br>em primeira mão.</h2>
+      <p>
+        Cadastre-se para receber lançamentos,
+        coleções exclusivas e novidades da Armoire Central.
+      </p>
+
+      <form class="newsletter-form">
+        <input type="email" placeholder="Seu melhor e-mail" required>
+        <button type="submit">
+          INSCREVER-SE
+          <i class="fa-solid fa-arrow-right"></i>
+        </button>
+      </form>
+    </div>
+  </section>
+
+  <!-- RODAPÉ -->
+  <footer>
+    <div class="footer-container">
+
+      <div class="footer-coluna footer-marca">
+        <img src="images/logoinv.png" alt="Armoire Central">
+        <p>Elegância em cada detalhe.</p>
+      </div>
+
+      <div class="footer-coluna">
+        <h3>ATENDIMENTO</h3>
+        <a href="#">Fale Conosco</a>
+        <a href="#">Trocas e Devoluções</a>
+        <a href="#">Política de Privacidade</a>
+      </div>
+
+      <div class="footer-coluna">
+        <h3>INSTITUCIONAL</h3>
+        <a href="#">Quem Somos</a>
+        <a href="produtos.html">Produtos</a>
+        <a href="index.html">Início</a>
+      </div>
+
+      <div class="footer-coluna">
+        <h3>SIGA-NOS</h3>
+        <div class="redes-sociais">
+          <a href="#" aria-label="Instagram">
+            <i class="fa-brands fa-instagram"></i>
+          </a>
+          <a href="#" aria-label="Facebook">
+            <i class="fa-brands fa-facebook-f"></i>
+          </a>
+          <a href="#" aria-label="TikTok">
+            <i class="fa-brands fa-tiktok"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <p>© 2026 Armoire Central. Todos os direitos reservados.</p>
+    </div>
+  </footer>
+
+  <!-- NOTIFICAÇÃO -->
+  <div class="toast-carrinho" id="toastCarrinho">
+    <div class="toast-icone">
+      <i class="fa-solid fa-check"></i>
+    </div>
+    <div class="toast-texto">
+      <strong>Adicionado ao Carrinho!</strong>
+      <span>Produto adicionado com sucesso.</span>
+    </div>
+  </div>
+
+  <!-- CARRINHO LATERAL -->
+  <div class="overlay-carrinho" id="overlayCarrinho"></div>
+
+  <aside class="carrinho" id="carrinho"
+         aria-label="Carrinho de compras">
+
+    <div class="topo-carrinho">
+      <div>
+        <span>SEU</span>
+        <h2>Carrinho</h2>
+      </div>
+      <button id="fecharCarrinho" type="button"
+              aria-label="Fechar carrinho">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+
+    <div id="listaCarrinho">
+      <p class="carrinho-vazio">Seu carrinho está vazio.</p>
+    </div>
+
+    <div class="rodape-carrinho">
+      <div class="total">
+        <span>TOTAL</span>
+        <strong id="totalCarrinho">R$ 0,00</strong>
+      </div>
+      <button class="btn-finalizar" type="button">
+        FINALIZAR COMPRA
+        <i class="fa-solid fa-arrow-right"></i>
+      </button>
+    </div>
+  </aside>
+
+  <!-- SCRIPTS -->
+  <script src="js/produtos-data.js"></script>
+  <script src="js/carrinho.js"></script>
+  <script src="js/armoire-supabase.js"></script>
+  <script src="js/produto.js"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="js/armoire-auth-ui.js"></script>
+  <script src="js/armoire-menu-extra.js"></script>
+</body>
+</html>

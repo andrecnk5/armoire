@@ -1,0 +1,530 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+    <!-- ==========================================
+         ARMOIRE CENTRAL — MY ARMOIRE
+         CONFIGURAÇÕES GERAIS
+    ========================================== -->
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="description"
+        content="MY ARMOIRE — Seu guarda-roupa virtual da Armoire Central. Explore suas peças favoritas e crie combinações exclusivas."
+    >
+
+    <title>MY ARMOIRE | Armoire Central</title>
+
+
+    <!-- ==========================================
+         FONTES
+    ========================================== -->
+
+    <link
+        rel="preconnect"
+        href="https://fonts.googleapis.com"
+    >
+
+    <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin
+    >
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet"
+    >
+
+
+    <!-- ==========================================
+         ÍCONES
+    ========================================== -->
+
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    >
+
+
+    <!-- ==========================================
+         CSS PRINCIPAL
+    ========================================== -->
+
+    <link
+        rel="stylesheet"
+        href="./css/my-armoire.css"
+    >
+
+</head>
+
+<body>
+
+
+    <!-- ==========================================
+         CABEÇALHO
+    ========================================== -->
+
+    <header class="ma-header">
+
+        <!-- LOGOTIPO -->
+
+        <a
+            href="./index.html"
+            class="ma-logo"
+            aria-label="Armoire Central — Página inicial"
+        >
+            ARMOIRE CENTRAL
+        </a>
+
+
+        <!-- VOLTAR AO CATÁLOGO -->
+
+        <a
+            href="./produtos.html"
+            class="ma-voltar"
+        >
+
+            <i class="fa-solid fa-arrow-left"></i>
+
+            <span>
+                CONTINUAR COMPRANDO
+            </span>
+
+        </a>
+
+    </header>
+
+
+
+    <!-- ==========================================
+         CONTEÚDO PRINCIPAL
+    ========================================== -->
+
+    <main class="ma-main">
+
+
+        <!-- ======================================
+             APRESENTAÇÃO DO MY ARMOIRE
+        ====================================== -->
+
+        <section class="ma-intro">
+
+            <span class="ma-eyebrow">
+                SEU GUARDA-ROUPA VIRTUAL
+            </span>
+
+            <h1>
+                MY ARMOIRE
+            </h1>
+
+            <p>
+                Suas peças favoritas, suas combinações.
+                Deslize horizontalmente para explorar
+                e combinar seu estilo.
+            </p>
+
+        </section>
+
+
+
+        <!-- ======================================
+             STATUS DE CARREGAMENTO
+        ====================================== -->
+
+        <div
+            id="ma-status"
+            class="ma-status"
+            role="status"
+            aria-live="polite"
+        >
+            Carregando seu guarda-roupa...
+        </div>
+
+
+
+        <!-- ======================================
+             GUARDA-ROUPA VIRTUAL
+        ====================================== -->
+
+        <section
+            id="ma-wardrobe"
+            class="ma-wardrobe"
+            aria-label="Meu guarda-roupa virtual"
+            hidden
+        >
+
+
+            <!-- ==================================
+                 BARRA DE FERRAMENTAS
+            ================================== -->
+
+            <div class="ma-toolbar">
+
+                <span>
+                    COMBINE SUAS PEÇAS
+                </span>
+
+
+                <!-- REINICIAR ROLETA -->
+
+                <button
+                    id="ma-reset"
+                    type="button"
+                    aria-label="Reiniciar visualização das peças"
+                >
+
+                    <i class="fa-solid fa-rotate-left"></i>
+
+                    REINICIAR
+
+                </button>
+
+            </div>
+
+
+
+            <!-- ==================================
+                 ROLETA DE PRODUTOS
+                 
+                 As categorias serão criadas
+                 automaticamente pelo JavaScript:
+
+                 1. TRONCO
+                 2. PARTE INFERIOR
+                 3. ACESSÓRIOS
+            ================================== -->
+
+            <div
+                id="ma-rows"
+                class="ma-rows"
+            ></div>
+
+
+
+            <!-- ==================================
+                 AÇÕES DO MY ARMOIRE
+
+                 1. ADICIONAR LOOK AO CARRINHO
+                 2. SALVAR LOOK NO GUARDA-ROUPA
+
+                 O botão ma-save mantém o ID
+                 original para compatibilidade
+                 com my-armoire-cart.js.
+
+                 O botão ma-save-look será
+                 integrado ao Supabase.
+            ================================== -->
+
+            <div
+                class="ma-actions"
+                role="group"
+                aria-label="Ações do look montado"
+            >
+
+
+                <!-- ADICIONAR LOOK AO CARRINHO -->
+
+                <button
+                    id="ma-save"
+                    class="ma-action-cart"
+                    type="button"
+                >
+
+                    <i
+                        class="fa-solid fa-bag-shopping"
+                        aria-hidden="true"
+                    ></i>
+
+                    <span>
+                        ADICIONAR LOOK AO CARRINHO
+                    </span>
+
+                </button>
+
+
+
+                <!-- SALVAR LOOK -->
+
+                <button
+                    id="ma-save-look"
+                    class="ma-action-save"
+                    type="button"
+                    aria-label="Salvar look no meu guarda-roupa"
+                >
+
+                    <i
+                        class="fa-regular fa-bookmark"
+                        aria-hidden="true"
+                    ></i>
+
+                    <span>
+                        SALVAR LOOK
+                    </span>
+
+                </button>
+
+
+            </div>
+
+
+
+            <!-- ==================================
+                 MENSAGENS DO GUARDA-ROUPA
+
+                 Utilizado para mensagens de:
+                 - Seleção de produtos
+                 - Confirmação de ações
+                 - Erros de carregamento
+            ================================== -->
+
+            <p
+                id="ma-feedback"
+                role="status"
+                aria-live="polite"
+            ></p>
+
+
+
+            <!-- ==================================
+                 STATUS DO SALVAMENTO
+
+                 O JavaScript atualizará este
+                 elemento após salvar o look
+                 no Supabase.
+            ================================== -->
+
+            <p
+                id="ma-save-feedback"
+                class="ma-save-feedback"
+                role="status"
+                aria-live="polite"
+                aria-atomic="true"
+            ></p>
+
+
+        </section>
+
+    </main>
+
+
+
+    <!-- ==========================================
+         RODAPÉ
+    ========================================== -->
+
+    <footer class="ma-footer">
+
+        <p>
+            ARMOIRE CENTRAL —
+            PADRÃO BÁSICO. LEGADO ETERNO.
+        </p>
+
+    </footer>
+
+
+
+    <!-- ==========================================
+         OVERLAY DO PAINEL DE COMPRA
+    ========================================== -->
+
+    <div
+        id="ma-cart-overlay"
+        class="ma-cart-overlay"
+        hidden
+    ></div>
+
+
+
+    <!-- ==========================================
+         PAINEL LATERAL — COMPRA DO LOOK
+    ========================================== -->
+
+    <aside
+        id="ma-cart-drawer"
+        class="ma-cart-drawer"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="ma-cart-title"
+        aria-describedby="ma-cart-description"
+        hidden
+    >
+
+
+        <!-- ======================================
+             CABEÇALHO DO PAINEL
+        ====================================== -->
+
+        <div class="ma-cart-header">
+
+            <div>
+
+                <span>
+                    MY ARMOIRE
+                </span>
+
+                <h2 id="ma-cart-title">
+                    FINALIZAR SEU LOOK
+                </h2>
+
+            </div>
+
+
+            <!-- FECHAR PAINEL -->
+
+            <button
+                id="ma-cart-close"
+                type="button"
+                aria-label="Fechar painel de compra"
+            >
+
+                <i class="fa-solid fa-xmark"></i>
+
+            </button>
+
+        </div>
+
+
+
+        <!-- ======================================
+             INSTRUÇÕES
+        ====================================== -->
+
+        <p
+            id="ma-cart-description"
+            class="ma-cart-description"
+        >
+            Escolha o tamanho de cada peça antes
+            de adicionar sua combinação ao carrinho.
+        </p>
+
+
+
+        <!-- ======================================
+             PRODUTOS SELECIONADOS
+
+             O JavaScript adicionará aqui:
+
+             - Imagem do produto
+             - Nome
+             - Preço
+             - Seleção de tamanho
+        ====================================== -->
+
+        <div
+            id="ma-cart-items"
+            class="ma-cart-items"
+        ></div>
+
+
+
+        <!-- ======================================
+             RODAPÉ DO PAINEL
+        ====================================== -->
+
+        <div class="ma-cart-footer">
+
+
+            <!-- SUBTOTAL -->
+
+            <div class="ma-cart-subtotal">
+
+                <span>
+                    SUBTOTAL
+                </span>
+
+                <strong id="ma-cart-total">
+                    R$ 0,00
+                </strong>
+
+            </div>
+
+
+
+            <!-- MENSAGENS DE VALIDAÇÃO -->
+
+            <p
+                id="ma-cart-error"
+                role="status"
+                aria-live="polite"
+            ></p>
+
+
+
+            <!-- CONFIRMAR ADIÇÃO -->
+
+            <button
+                id="ma-cart-confirm"
+                type="button"
+            >
+
+                <i class="fa-solid fa-bag-shopping"></i>
+
+                ADICIONAR AO CARRINHO
+
+            </button>
+
+        </div>
+
+    </aside>
+
+
+
+    <!-- ==========================================
+         JAVASCRIPT
+         ORDEM DE CARREGAMENTO
+    ========================================== -->
+
+
+    <!-- 1. BIBLIOTECA SUPABASE -->
+
+    <script
+        src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"
+    ></script>
+
+
+
+    <!-- 2. SISTEMA DO GUARDA-ROUPA VIRTUAL -->
+
+    <script
+        src="./js/my-armoire.js"
+    ></script>
+
+
+
+    <!-- 3. SISTEMA DE CARRINHO -->
+
+    <script
+        src="./js/carrinho.js"
+    ></script>
+
+
+
+    <!-- 4. PAINEL DE COMPRA E TAMANHOS -->
+
+    <script
+        src="./js/my-armoire-cart.js"
+    ></script>
+
+
+
+    <!-- ==========================================
+         PRÓXIMA ETAPA
+
+         A integração do botão ma-save-look
+         com o Supabase será adicionada
+         após a análise dos arquivos JS
+         e da autenticação existente.
+    ========================================== -->
+
+</body>
+
+</html>

@@ -1,0 +1,1285 @@
+
+/* ==========================================
+   ARMOIRE CENTRAL — MY ARMOIRE
+   ROLETA DE LOOKS
+========================================== */
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: #ffffff;
+  color: #031638;
+  font-family: 'Montserrat', sans-serif;
+}
+
+button,
+a {
+  font-family: inherit;
+}
+
+.ma-header {
+  height: 84px;
+  padding: 0 6%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #e8eaf0;
+}
+
+.ma-logo {
+  color: #031638;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 3px;
+  text-decoration: none;
+}
+
+.ma-voltar {
+  color: #031638;
+  text-decoration: none;
+  font-size: 10px;
+  letter-spacing: 1px;
+}
+
+.ma-voltar i {
+  margin-right: 9px;
+}
+
+.ma-main {
+  max-width: 1250px;
+  margin: 0 auto;
+  padding: 55px 5% 90px;
+}
+
+.ma-intro {
+  text-align: center;
+  margin-bottom: 45px;
+}
+
+.ma-eyebrow {
+  font-size: 10px;
+  letter-spacing: 3px;
+  color: #8290a2;
+}
+
+.ma-intro h1 {
+  font-size: clamp(32px, 5vw, 56px);
+  font-weight: 400;
+  letter-spacing: 5px;
+  margin: 18px 0;
+}
+
+.ma-intro p {
+  font-size: 12px;
+  color: #748091;
+  line-height: 1.9;
+}
+
+.ma-status {
+  padding: 60px 20px;
+  text-align: center;
+  color: #788496;
+  font-size: 13px;
+}
+
+.ma-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #e8ebf0;
+  padding: 15px 0;
+  margin-bottom: 35px;
+}
+
+.ma-toolbar span {
+  font-size: 10px;
+  letter-spacing: 2px;
+  font-weight: 600;
+}
+
+.ma-toolbar button {
+  border: none;
+  background: transparent;
+  color: #031638;
+  font-size: 10px;
+  letter-spacing: 1px;
+  cursor: pointer;
+}
+
+.ma-toolbar button i {
+  margin-right: 8px;
+}
+
+/* ==========================================
+   SEÇÕES DA ROLETA
+========================================== */
+
+.ma-wheel-section {
+  margin-bottom: 30px;
+  border-bottom: 1px solid #eef0f3;
+  padding-bottom: 25px;
+}
+
+.ma-wheel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.ma-wheel-header h2 {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 2px;
+}
+
+.ma-wheel-header span {
+  color: #8993a1;
+  font-size: 10px;
+  letter-spacing: 1px;
+}
+
+.ma-wheel-area {
+  position: relative;
+  overflow: hidden;
+}
+
+.ma-wheel-track {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 20px calc(50% - 105px);
+  cursor: grab;
+  user-select: none;
+  scrollbar-width: none;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: auto;
+}
+
+.ma-wheel-track::-webkit-scrollbar {
+  display: none;
+}
+
+.ma-wheel-track.arrastando {
+  cursor: grabbing;
+  scroll-snap-type: none;
+}
+
+.ma-wheel-item {
+  flex: 0 0 210px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  opacity: .4;
+  transform: scale(.85);
+  transition: opacity .25s, transform .25s;
+  scroll-snap-align: center;
+}
+
+.ma-wheel-item.selecionado {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.ma-wheel-image {
+  width: 100%;
+  height: 215px;
+  object-fit: contain;
+  background: #f5f6f8;
+  padding: 10px;
+  pointer-events: none;
+}
+
+.ma-wheel-name {
+  font-size: 10px;
+  text-align: center;
+  line-height: 1.5;
+  font-weight: 500;
+}
+
+.ma-wheel-center-marker {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 210px;
+  transform: translateX(-50%);
+  border-left: 1px solid rgba(3,22,56,.08);
+  border-right: 1px solid rgba(3,22,56,.08);
+  pointer-events: none;
+}
+
+.ma-wheel-empty {
+  padding: 35px 15px;
+  text-align: center;
+  color: #8b95a3;
+  font-size: 11px;
+}
+
+/* ==========================================
+   AÇÕES
+========================================== */
+
+.ma-actions {
+  display: flex;
+  justify-content: center;
+  margin-top: 35px;
+}
+
+.ma-actions button {
+  padding: 18px 32px;
+  border: 1px solid #031638;
+  background: #031638;
+  color: #fff;
+  cursor: pointer;
+  font-size: 10px;
+  letter-spacing: 1.4px;
+}
+
+.ma-actions button i {
+  margin-right: 9px;
+}
+
+#ma-feedback {
+  text-align: center;
+  color: #778293;
+  font-size: 11px;
+  margin-top: 18px;
+}
+
+.ma-footer {
+  padding: 35px 20px;
+  border-top: 1px solid #e8ebf0;
+  text-align: center;
+  color: #8792a2;
+  font-size: 9px;
+  letter-spacing: 2px;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+/* ==========================================
+   RESPONSIVIDADE
+========================================== */
+
+@media (max-width: 600px) {
+
+  .ma-header {
+    height: 72px;
+    padding: 0 20px;
+  }
+
+  .ma-logo {
+    font-size: 11px;
+    letter-spacing: 2px;
+  }
+
+  .ma-voltar {
+    font-size: 9px;
+  }
+
+  .ma-main {
+    padding: 40px 18px 65px;
+  }
+
+  .ma-intro {
+    margin-bottom: 35px;
+  }
+
+  .ma-intro h1 {
+    letter-spacing: 3px;
+  }
+
+  .ma-wheel-track {
+    gap: 12px;
+    padding: 15px calc(50% - 75px);
+  }
+
+  .ma-wheel-item {
+    flex-basis: 150px;
+  }
+
+  .ma-wheel-image {
+    height: 170px;
+  }
+
+  .ma-wheel-center-marker {
+    width: 150px;
+  }
+}
+
+/* ==========================================
+   MY ARMOIRE — PAINEL DE COMPRA
+========================================== */
+
+.ma-cart-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(3, 22, 56, .45);
+  backdrop-filter: blur(4px);
+  z-index: 9998;
+}
+
+.ma-cart-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: min(100%, 460px);
+  background: #fff;
+  z-index: 9999;
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: -12px 0 45px rgba(0, 0, 0, .12);
+  overflow: hidden;
+}
+
+.ma-cart-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 15px;
+  padding-bottom: 22px;
+  border-bottom: 1px solid #e8ebf0;
+}
+
+.ma-cart-header span {
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: #7d8795;
+}
+
+.ma-cart-header h2 {
+  font-size: 19px;
+  font-weight: 500;
+  letter-spacing: 1px;
+  margin: 9px 0 0;
+}
+
+#ma-cart-close {
+  border: none;
+  background: transparent;
+  color: #031638;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.ma-cart-description {
+  font-size: 11px;
+  line-height: 1.8;
+  color: #788393;
+  margin: 22px 0;
+}
+
+.ma-cart-items {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.ma-cart-product {
+  display: flex;
+  gap: 16px;
+  padding: 18px 0;
+  border-bottom: 1px solid #edf0f3;
+}
+
+.ma-cart-image {
+  width: 100px;
+  height: 130px;
+  object-fit: contain;
+  background: #f5f6f8;
+  padding: 8px;
+  flex-shrink: 0;
+}
+
+.ma-cart-product-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.ma-cart-product-info h3 {
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.5;
+  margin: 0 0 9px;
+}
+
+.ma-cart-price {
+  font-size: 12px;
+  color: #596779;
+  margin-bottom: 18px;
+}
+
+.ma-cart-label {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 9px;
+  letter-spacing: 1px;
+}
+
+.ma-cart-size {
+  width: 100%;
+  height: 40px;
+  padding: 0 10px;
+  border: 1px solid #dce1e8;
+  background: white;
+  color: #031638;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 11px;
+}
+
+.ma-cart-footer {
+  padding-top: 20px;
+  border-top: 1px solid #e8ebf0;
+}
+
+.ma-cart-subtotal {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.ma-cart-subtotal span {
+  font-size: 10px;
+  letter-spacing: 1px;
+}
+
+.ma-cart-subtotal strong {
+  font-size: 17px;
+  font-weight: 600;
+}
+
+#ma-cart-error {
+  font-size: 11px;
+  color: #a23c46;
+  line-height: 1.6;
+}
+
+#ma-cart-confirm {
+  width: 100%;
+  min-height: 50px;
+  border: 1px solid #031638;
+  background: #031638;
+  color: #fff;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 10px;
+  letter-spacing: 1px;
+  cursor: pointer;
+}
+
+#ma-cart-confirm:hover {
+  background: #1b3457;
+}
+
+body.ma-cart-open {
+  overflow: hidden;
+}
+
+@media (max-width: 600px) {
+  .ma-cart-drawer {
+    padding: 24px 20px;
+  }
+
+  .ma-cart-image {
+    width: 85px;
+    height: 110px;
+  }
+}
+
+/* ==========================================
+   ARMOIRE CENTRAL — ANIMAÇÕES PREMIUM
+========================================== */
+
+/* ==========================================
+   BOTÕES PRINCIPAIS
+========================================== */
+
+#ma-save,
+#ma-cart-confirm {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+
+  background: #031638;
+  color: #ffffff;
+  border: 1px solid #031638;
+
+  transition:
+    color .35s ease,
+    border-color .35s ease,
+    transform .35s ease,
+    box-shadow .35s ease;
+}
+
+#ma-save::before,
+#ma-cart-confirm::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+
+  background: #ffffff;
+
+  transform: scaleX(0);
+  transform-origin: left;
+
+  transition: transform .4s cubic-bezier(.22, 1, .36, 1);
+
+  z-index: -1;
+}
+
+#ma-save:hover,
+#ma-cart-confirm:hover {
+  color: #031638;
+  background: #031638;
+
+  box-shadow: 0 8px 22px rgba(3, 22, 56, .10);
+}
+
+#ma-save:hover::before,
+#ma-cart-confirm:hover::before {
+  transform: scaleX(1);
+}
+
+#ma-save i,
+#ma-cart-confirm i {
+  display: inline-block;
+
+  transition: transform .35s ease;
+}
+
+#ma-save:hover i,
+#ma-cart-confirm:hover i {
+  transform: translateX(4px);
+}
+
+/* ==========================================
+   SELETOR DE TAMANHO
+========================================== */
+
+.ma-size-wrapper {
+  position: relative;
+  width: 100%;
+  margin-top: 9px;
+}
+
+.ma-size-trigger {
+  width: 100%;
+  min-height: 44px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+
+  padding: 0 14px;
+
+  background: #ffffff;
+  border: 1px solid #dce1e8;
+
+  color: #031638;
+  font-family: "Montserrat", sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  text-align: left;
+
+  cursor: pointer;
+
+  transition:
+    border-color .3s ease,
+    background .3s ease,
+    box-shadow .3s ease;
+}
+
+.ma-size-trigger:hover {
+  border-color: #031638;
+  background: #fafbfc;
+}
+
+.ma-size-trigger:focus-visible {
+  outline: 2px solid #031638;
+  outline-offset: 2px;
+}
+
+.ma-size-trigger i {
+  font-size: 10px;
+
+  transition: transform .35s cubic-bezier(.22, 1, .36, 1);
+}
+
+.ma-size-wrapper.open .ma-size-trigger {
+  border-color: #031638;
+}
+
+.ma-size-wrapper.open .ma-size-trigger i {
+  transform: rotate(180deg);
+}
+
+/* ==========================================
+   MENU DESLIZANTE
+========================================== */
+
+.ma-size-menu {
+  display: grid;
+  grid-template-rows: 0fr;
+
+  opacity: 0;
+  visibility: hidden;
+
+  margin-top: 0;
+
+  transition:
+    grid-template-rows .38s cubic-bezier(.22, 1, .36, 1),
+    opacity .25s ease,
+    visibility .38s ease,
+    margin-top .38s ease;
+}
+
+.ma-size-menu-inner {
+  min-height: 0;
+  overflow: hidden;
+
+  border: 1px solid transparent;
+
+  transition: border-color .3s ease;
+}
+
+.ma-size-wrapper.open .ma-size-menu {
+  grid-template-rows: 1fr;
+  opacity: 1;
+  visibility: visible;
+  margin-top: 5px;
+}
+
+.ma-size-wrapper.open .ma-size-menu-inner {
+  border-color: #dce1e8;
+}
+
+/* ==========================================
+   OPÇÕES DE TAMANHO
+========================================== */
+
+.ma-size-option {
+  display: block;
+  width: 100%;
+  min-height: 38px;
+
+  padding: 11px 14px;
+
+  border: none;
+  background: #ffffff;
+
+  color: #031638;
+
+  font-family: "Montserrat", sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  text-align: left;
+
+  cursor: pointer;
+
+  transition:
+    background .25s ease,
+    color .25s ease,
+    padding-left .3s ease;
+}
+
+.ma-size-option:hover {
+  background: #f0f3f7;
+  padding-left: 20px;
+}
+
+.ma-size-option.active {
+  background: #031638;
+  color: #ffffff;
+}
+
+.ma-size-option:focus-visible {
+  outline: 2px solid #031638;
+  outline-offset: -2px;
+}
+
+/* ==========================================
+   ACESSIBILIDADE
+========================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  #ma-save,
+  #ma-cart-confirm,
+  #ma-save::before,
+  #ma-cart-confirm::before,
+  .ma-size-trigger,
+  .ma-size-trigger i,
+  .ma-size-menu,
+  .ma-size-option {
+    transition-duration: .01ms !important;
+  }
+}
+
+/* ==========================================
+   MY ARMOIRE — ANIMAÇÕES PREMIUM
+========================================== */
+
+.ma-cart-overlay[hidden],
+.ma-cart-drawer[hidden] {
+  display: none !important;
+}
+
+/* ANIMAÇÃO DO PAINEL */
+
+.ma-cart-overlay {
+  opacity: 0;
+  transition: opacity .35s ease;
+}
+
+.ma-cart-overlay.ma-visible {
+  opacity: 1;
+}
+
+.ma-cart-drawer {
+  transform: translateX(100%);
+  transition: transform .4s cubic-bezier(.22, 1, .36, 1);
+}
+
+.ma-cart-drawer.ma-visible {
+  transform: translateX(0);
+}
+
+/* BOTÕES COM PREENCHIMENTO ANIMADO */
+
+#ma-save,
+#ma-cart-confirm {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+
+  background: #031638;
+  color: #fff;
+  border: 1px solid #031638;
+
+  transition:
+    color .35s ease,
+    box-shadow .35s ease;
+}
+
+#ma-save::before,
+#ma-cart-confirm::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: #fff;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform .4s cubic-bezier(.22, 1, .36, 1);
+  z-index: -1;
+}
+
+#ma-save:hover,
+#ma-cart-confirm:hover:not(:disabled) {
+  color: #031638;
+  background: #031638;
+  box-shadow: 0 8px 22px rgba(3, 22, 56, .12);
+}
+
+#ma-save:hover::before,
+#ma-cart-confirm:hover:not(:disabled)::before {
+  transform: scaleX(1);
+}
+
+#ma-cart-confirm:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+}
+
+/* SELETOR DE TAMANHO */
+
+.ma-size-wrapper {
+  width: 100%;
+  margin-top: 12px;
+}
+
+.ma-size-wrapper .ma-cart-label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 1.2px;
+  color: #031638;
+}
+
+.ma-size-trigger {
+  width: 100%;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 14px;
+
+  border: 1px solid #dce1e8;
+  background: #fff;
+  color: #031638;
+
+  font-family: "Montserrat", sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+
+  transition:
+    border-color .3s ease,
+    background .3s ease,
+    box-shadow .3s ease;
+}
+
+.ma-size-trigger:hover:not(:disabled) {
+  border-color: #031638;
+  background: #fafbfc;
+}
+
+.ma-size-trigger:disabled {
+  opacity: .55;
+  cursor: not-allowed;
+}
+
+.ma-size-trigger:focus-visible,
+.ma-size-option:focus-visible {
+  outline: 2px solid #031638;
+  outline-offset: 2px;
+}
+
+.ma-size-trigger i {
+  font-size: 10px;
+  transition: transform .35s ease;
+}
+
+.ma-size-wrapper.open .ma-size-trigger {
+  border-color: #031638;
+}
+
+.ma-size-wrapper.open .ma-size-trigger i {
+  transform: rotate(180deg);
+}
+
+/* MENU QUE DESLIZA AO ABRIR E FECHAR */
+
+.ma-size-menu {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  visibility: hidden;
+  margin-top: 0;
+
+  transition:
+    grid-template-rows .38s cubic-bezier(.22, 1, .36, 1),
+    opacity .25s ease,
+    visibility .38s ease,
+    margin-top .38s ease;
+}
+
+.ma-size-menu-inner {
+  min-height: 0;
+  overflow: hidden;
+  border: 1px solid transparent;
+  transition: border-color .3s ease;
+}
+
+.ma-size-wrapper.open .ma-size-menu {
+  grid-template-rows: 1fr;
+  opacity: 1;
+  visibility: visible;
+  margin-top: 5px;
+}
+
+.ma-size-wrapper.open .ma-size-menu-inner {
+  border-color: #dce1e8;
+}
+
+/* OPÇÕES */
+
+.ma-size-option {
+  display: block;
+  width: 100%;
+  min-height: 38px;
+  padding: 11px 14px;
+
+  border: none;
+  background: #fff;
+  color: #031638;
+
+  font-family: "Montserrat", sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+
+  transition:
+    background .25s ease,
+    color .25s ease,
+    padding-left .3s ease;
+}
+
+.ma-size-option:hover {
+  background: #f0f3f7;
+  padding-left: 20px;
+}
+
+.ma-size-option.active {
+  background: #031638;
+  color: #fff;
+}
+
+.ma-size-option.active:hover {
+  background: #16345b;
+  color: #fff;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ma-cart-overlay,
+  .ma-cart-drawer,
+  #ma-save,
+  #ma-cart-confirm,
+  #ma-save::before,
+  #ma-cart-confirm::before,
+  .ma-size-trigger,
+  .ma-size-trigger i,
+  .ma-size-menu,
+  .ma-size-option {
+    transition-duration: .01ms !important;
+  }
+}
+
+/* ==========================================
+   MY ARMOIRE — NOTIFICAÇÕES PREMIUM
+========================================== */
+
+.ma-toast {
+  position: fixed;
+  top: 28px;
+  right: 28px;
+  z-index: 999999;
+
+  display: flex;
+  align-items: center;
+  gap: 14px;
+
+  width: min(390px, calc(100vw - 32px));
+  padding: 18px 20px;
+
+  background: #ffffff;
+  color: #14213b;
+
+  border: 1px solid rgba(20, 33, 59, 0.12);
+  border-left: 3px solid #14213b;
+  border-radius: 6px;
+
+  box-shadow: 0 14px 45px rgba(0, 0, 0, 0.14);
+
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-15px);
+
+  transition:
+    opacity 0.3s ease,
+    transform 0.3s ease,
+    visibility 0.3s ease;
+
+  pointer-events: none;
+}
+
+.ma-toast.ma-toast-visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.ma-toast-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+
+  border-radius: 50%;
+  background: #eef1f5;
+
+  font-size: 19px;
+  color: #14213b;
+}
+
+.ma-toast-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.ma-toast-title {
+  margin: 0 0 4px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.ma-toast-description {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #687183;
+}
+
+.ma-toast-close {
+  align-self: flex-start;
+  border: 0;
+  background: transparent;
+  color: #687183;
+  cursor: pointer;
+  font-size: 15px;
+}
+
+.ma-toast[data-type="erro"] {
+  border-left-color: #b54747;
+}
+
+.ma-toast[data-type="erro"] .ma-toast-icon {
+  background: #fbeeee;
+  color: #b54747;
+}
+
+@media (max-width: 600px) {
+  .ma-toast {
+    top: 16px;
+    right: 16px;
+  }
+}
+
+/* ==========================================
+   MY ARMOIRE — NOTIFICAÇÕES PREMIUM
+========================================== */
+
+.ma-toast {
+  position: fixed;
+  top: 28px;
+  right: 28px;
+  z-index: 999999;
+
+  display: flex;
+  align-items: center;
+  gap: 14px;
+
+  width: min(390px, calc(100vw - 32px));
+  padding: 18px 20px;
+
+  background: #ffffff;
+  color: #14213b;
+
+  border: 1px solid rgba(20, 33, 59, 0.12);
+  border-left: 3px solid #14213b;
+  border-radius: 6px;
+
+  box-shadow:
+    0 14px 45px rgba(0, 0, 0, 0.14);
+
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-15px);
+
+  transition:
+    opacity 0.3s ease,
+    transform 0.3s ease,
+    visibility 0.3s ease;
+
+  pointer-events: none;
+}
+
+.ma-toast.ma-toast-visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.ma-toast-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+
+  border-radius: 50%;
+  background: #eef1f5;
+
+  font-size: 19px;
+  color: #14213b;
+}
+
+.ma-toast-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.ma-toast-title {
+  margin: 0 0 4px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.ma-toast-description {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #687183;
+}
+
+.ma-toast-close {
+  align-self: flex-start;
+  border: 0;
+  background: transparent;
+  color: #687183;
+  cursor: pointer;
+  font-size: 15px;
+}
+
+.ma-toast[data-type="erro"] {
+  border-left-color: #b54747;
+}
+
+.ma-toast[data-type="erro"] .ma-toast-icon {
+  background: #fbeeee;
+  color: #b54747;
+}
+
+@media (max-width: 600px) {
+  .ma-toast {
+    top: 16px;
+    right: 16px;
+  }
+}
+
+/* ==========================================
+   MY ARMOIRE — SALVAR LOOK
+   Complemento para os dois botões de ação
+========================================== */
+
+.ma-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  justify-content: center;
+  gap: 14px;
+}
+
+.ma-actions #ma-save,
+.ma-actions #ma-save-look {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 54px;
+  padding: 16px 28px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1.3px;
+  line-height: 1.5;
+  text-align: center;
+  cursor: pointer;
+}
+
+.ma-actions #ma-save i,
+.ma-actions #ma-save-look i {
+  margin-right: 0;
+}
+
+.ma-actions #ma-save-look {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  color: #031638;
+  background: #fff;
+  border: 1px solid #031638;
+  transition: color .35s ease, box-shadow .35s ease, opacity .2s ease;
+}
+
+.ma-actions #ma-save-look::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: #031638;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform .4s cubic-bezier(.22, 1, .36, 1);
+  z-index: -1;
+}
+
+.ma-actions #ma-save-look:hover:not(:disabled) {
+  color: #fff;
+  box-shadow: 0 8px 22px rgba(3, 22, 56, .12);
+}
+
+.ma-actions #ma-save-look:hover:not(:disabled)::before {
+  transform: scaleX(1);
+}
+
+.ma-actions #ma-save-look:focus-visible,
+.ma-actions #ma-save:focus-visible {
+  outline: 2px solid #031638;
+  outline-offset: 4px;
+}
+
+.ma-actions #ma-save-look:disabled {
+  cursor: wait;
+  opacity: .6;
+}
+
+#ma-save-feedback {
+  margin: 12px auto 0;
+  text-align: center;
+  color: #596779;
+  font-size: 11px;
+  line-height: 1.6;
+  min-height: 0;
+}
+
+#ma-save-feedback:empty { display: none; }
+#ma-save-feedback[data-type="erro"] { color: #a23c46; }
+#ma-save-feedback[data-type="sucesso"] { color: #245a40; }
+
+@media (max-width: 600px) {
+  .ma-actions {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .ma-actions #ma-save,
+  .ma-actions #ma-save-look {
+    width: 100%;
+    min-height: 52px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ma-actions #ma-save-look,
+  .ma-actions #ma-save-look::before {
+    transition-duration: .01ms !important;
+  }
+}
