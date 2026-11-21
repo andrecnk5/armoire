@@ -35,7 +35,8 @@
           "imageWidth": 76,
           "android": {
             "backgroundColor": "#111111",
-            "image": "./assets/images/ac-splash.png"
+            "image": "./assets/images/ac-splash.png",
+            "imageWidth": 91
           }
         }
       ]
