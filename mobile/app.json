@@ -1,10 +1,10 @@
 {
   "expo": {
-    "name": "armoire_central",
+    "name": "Armoire Central",
     "slug": "armoire_central",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/ac-icon.png",
     "scheme": "armoirecentral",
     "userInterfaceStyle": "automatic",
     "ios": {
@@ -12,12 +12,14 @@
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
-        "foregroundImage": "./assets/images/android-icon-foreground.png",
-        "backgroundImage": "./assets/images/android-icon-background.png",
-        "monochromeImage": "./assets/images/android-icon-monochrome.png"
+        "backgroundColor": "#111111",
+        "foregroundImage": "./assets/images/ac-android-foreground.png",
+        "backgroundImage": "./assets/images/ac-android-background.png",
+        "monochromeImage": "./assets/images/ac-android-monochrome.png"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.armoirecentral.demo",
+      "versionCode": 1
     },
     "web": {
       "output": "static",
@@ -30,13 +32,24 @@
         {
           "backgroundColor": "#208AEF",
           "image": "./assets/images/splash-icon.png",
-          "imageWidth": 76
+          "imageWidth": 76,
+          "android": {
+            "backgroundColor": "#111111",
+            "image": "./assets/images/ac-splash.png",
+            "imageWidth": 91
+          }
         }
       ]
     ],
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "2cf9771f-fcc9-4abe-8b8d-5c3eac92d3f2"
+      }
+    },
+    "owner": "andrecnk5"
   }
 }

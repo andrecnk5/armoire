@@ -2,7 +2,6 @@ import { FontAwesome } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import {
-  Dimensions,
   Image,
   Modal,
   ScrollView,
@@ -12,8 +11,6 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-
-const { width } = Dimensions.get('window');
 
 export default function Home() {
   const router = useRouter();
@@ -33,7 +30,7 @@ export default function Home() {
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.push('/')}>
           <Image
-            source={require('../assets/images/logo.png')}
+            source={require('@/assets/images/armoire/logo.png')}
             style={styles.logo}
             resizeMode="contain"
           />
@@ -104,7 +101,7 @@ export default function Home() {
         {/* HERO SECTION */}
         <View style={styles.heroSection}>
           <Image
-            source={require('../assets/images/banneraf.png')}
+            source={require('@/assets/images/armoire/banneraf.png')}
             style={styles.heroImage}
             resizeMode="cover"
           />
@@ -140,7 +137,7 @@ export default function Home() {
         {/* DESTAQUE */}
         <View style={styles.destaqueSection}>
           <Image
-            source={require('../assets/images/bannerpd.png')}
+            source={require('@/assets/images/armoire/bannerpd.png')}
             style={styles.destaqueImage}
             resizeMode="cover"
           />
@@ -167,7 +164,7 @@ export default function Home() {
 
           <View style={styles.categoriasGrid}>
             <TouchableOpacity style={styles.categoriaCard} onPress={() => router.push('/produtos')}>
-              <Image source={require('../assets/images/categoria-polo.png')} style={styles.categoriaImg} />
+              <Image source={require('@/assets/images/armoire/categoria-polo.png')} style={styles.categoriaImg} />
               <View style={styles.categoriaOverlay}>
                 <Text style={styles.categoriaTitle}>CAMISETAS & POLOS</Text>
                 <Text style={styles.categoriaSub}>EXPLORAR</Text>
@@ -175,7 +172,7 @@ export default function Home() {
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.categoriaCard} onPress={() => router.push('/produtos')}>
-              <Image source={require('../assets/images/categoria-camisa.png')} style={styles.categoriaImg} />
+              <Image source={require('@/assets/images/armoire/categoria-camisa.png')} style={styles.categoriaImg} />
               <View style={styles.categoriaOverlay}>
                 <Text style={styles.categoriaTitle}>CAMISAS</Text>
                 <Text style={styles.categoriaSub}>EXPLORAR</Text>
@@ -183,7 +180,7 @@ export default function Home() {
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.categoriaCard} onPress={() => router.push('/produtos')}>
-              <Image source={require('../assets/images/categoria-calca.png')} style={styles.categoriaImg} />
+              <Image source={require('@/assets/images/armoire/categoria-calca.png')} style={styles.categoriaImg} />
               <View style={styles.categoriaOverlay}>
                 <Text style={styles.categoriaTitle}>CALÇAS & BERMUDAS</Text>
                 <Text style={styles.categoriaSub}>EXPLORAR</Text>
@@ -191,7 +188,7 @@ export default function Home() {
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.categoriaCard} onPress={() => router.push('/produtos')}>
-              <Image source={require('../assets/images/categoria-acessorios.png')} style={styles.categoriaImg} />
+              <Image source={require('@/assets/images/armoire/categoria-acessorios.png')} style={styles.categoriaImg} />
               <View style={styles.categoriaOverlay}>
                 <Text style={styles.categoriaTitle}>ACESSÓRIOS</Text>
                 <Text style={styles.categoriaSub}>EXPLORAR</Text>
@@ -249,7 +246,7 @@ export default function Home() {
         {/* FOOTER */}
         <View style={styles.footer}>
           <Image
-            source={require('../assets/images/logoinv.png')}
+            source={require('@/assets/images/armoire/logoinv.png')}
             style={styles.footerLogo}
             resizeMode="contain"
           />
@@ -299,8 +296,8 @@ const styles = StyleSheet.create({
   
   // Hero
   heroSection: { height: 500, position: 'relative', justifyContent: 'flex-end', padding: 24 },
-  heroImage: { ...StyleSheet.absoluteFillObject, width: '100%', height: '100%' },
-  heroOverlay: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.45)' },
+  heroImage: { ...StyleSheet.absoluteFill, width: '100%', height: '100%' },
+  heroOverlay: { ...StyleSheet.absoluteFill, backgroundColor: 'rgba(0,0,0,0.45)' },
   heroContent: { zIndex: 2 },
   heroOverline: { color: '#FFF', fontSize: 10, letterSpacing: 3, marginBottom: 10 },
   heroTitle: { color: '#FFF', fontSize: 32, fontWeight: '600', lineHeight: 36 },
