@@ -1,0 +1,43 @@
+node_modules/
+.expo/
+.env
+.env.*
+!.env.example
+dist/
+build/
+.DS_Store
+
+
+# Regras mobile com escopo preservado
+/mobile/**/web-build/
+/mobile/**/expo-env.d.ts
+/mobile/**/.kotlin/
+/mobile/**/*.orig.*
+/mobile/**/*.jks
+/mobile/**/*.p8
+/mobile/**/*.p12
+/mobile/**/*.key
+/mobile/**/*.mobileprovision
+/mobile/**/.metro-health-check*
+/mobile/**/npm-debug.*
+/mobile/**/yarn-debug.*
+/mobile/**/yarn-error.*
+/mobile/**/*.pem
+/mobile/**/.env*.local
+/mobile/**/*.tsbuildinfo
+/mobile/**/example
+/mobile/ios
+/mobile/android
+
+
+# Metadados Git e materiais desnecessarios (preservados no disco original)
+/.git
+*:Zone.Identifier
+/mobile/armoire_central.zip
+/mobile/package copy.json
+
+
+# Lacunas preventivas para credenciais futuras; nenhum desses arquivos presente na C3
+credentials.json
+*.keystore
+.npmrc
